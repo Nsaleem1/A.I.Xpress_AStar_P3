@@ -35,37 +35,34 @@ with open(manifestName, "r") as text:
 
         # third part is contents - str
         contents = parts[2]
-        if contents == "NAN":
-            contents = None
+        # if contents == "NAN":
+        #     contents = None
         container = Container(location, weight, contents)
         containers.append(container)
 
+#creating start state
 grid = functions.shipGrid(containers)
 left = functions.left(grid)
 right = functions.right(grid)
 goal = functions.reachGoal(grid)
 initialState = functions.state(grid, left, right, goal)
-nextMoves = functions.computeMoves(initialState)
 
+#see if it is an edge case, else run regular BFS
+foundGoal = initialState
+isEdge = functions.edgeCase(initialState , containers)
+if not isEdge:
+    foundGoal = functions.BFS(initialState)
 
-print(len(nextMoves))
+functions.updateManifest(foundGoal.grid, manifestName)
+print("Proram was successful. See Updated Manifest.")
 
 
 #PROGRESS SO FAR:
-# did all those functions and i think they r right
-# the only one that could be iffy is compute moves but i think it is right?
+# completed BFS approach, but I m getting logic error look at BFS function
+# need to check my functions
 
 #NOTES:
-# dw abt Astar lets just do BFS and then we can try to figure out the heuristic if that seems easier 
-# oh and same with tracking the time it takes we can probs js add that later
-# nd also updating manifest can probs do that later too lets get a basic skeleton working rn 
+# include time, maybe computeTime function or sum 
+# make it a star 
 
-# function general-search(problem, QUEUEING-FUNCTION)
-# nodes = MAKE-QUEUE(MAKE-NODE(problem.INITIAL-STATE))
-# loop do
-# if EMPTY(nodes) then return "failure" (we have proved there is no solution!)
-# node = REMOVE-FRONT(nodes)
-# if problem.GOAL-TEST(node.STATE) succeeds then return node
-# nodes = QUEUEING-FUNCTION(nodes, EXPAND(node, problem.OPERATORS))
-# end
 
