@@ -43,7 +43,7 @@ with open(manifestName, "r") as text:
 grid = functions.shipGrid(containers)
 left = functions.left(grid)
 right = functions.right(grid)
-goal = functions.reachGoal(left, right)
+goal = functions.reachGoal(grid)
 initialState = functions.state(grid, left, right, goal)
 nextMoves = functions.computeMoves(initialState)
 
@@ -53,11 +53,12 @@ print(len(nextMoves))
 
 #PROGRESS SO FAR:
 # did all those functions and i think they r right
-# the only one that could be iffy is compute moves but i think it is right tbh
+# the only one that could be iffy is compute moves but i think it is right?
 
 #NOTES:
 # dw abt Astar lets just do BFS and then we can try to figure out the heuristic if that seems easier 
 # oh and same with tracking the time it takes we can probs js add that later
+# nd also updating manifest can probs do that later too lets get a basic skeleton working rn 
 
 # function general-search(problem, QUEUEING-FUNCTION)
 # nodes = MAKE-QUEUE(MAKE-NODE(problem.INITIAL-STATE))

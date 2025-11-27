@@ -41,10 +41,12 @@ def right(grid):
                 totalWeight += grid[i][j]
     return totalWeight
 
-def reachGoal(left, right):
+def reachGoal(grid):
+    leftVal = left(grid)
+    rightVal = right(grid)
     #need to add the or reach minimal stuff otherwise if the test case never reach this condition
     # it will be infinite loop
-    if ((left - right) < (sum([left, right]) * 0.10)):
+    if ((leftVal - rightVal) < (sum([leftVal, rightVal]) * 0.10)):
         return True
     return False
 
@@ -53,7 +55,7 @@ def newState(oldRow, oldCol, newRow, newCol, grid):
     value = grid[oldRow][oldCol]
     grid[oldRow][oldCol] = 0
     grid[newRow][newCol] = value
-    return state(grid, left(grid), right(grid), reachGoal(left(grid), right(grid)))
+    return state(grid, left(grid), right(grid), reachGoal(grid))
 
 # assume that 0 means spot is empty
 # None is spot we cant go to 
