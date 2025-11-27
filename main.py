@@ -27,7 +27,7 @@ with open(manifestName, "r") as text:
         part1 = parts[0][1:-1]
 
         x, y = part1.split(",")
-        location = (x,y)
+        location = (int(x),int(y))
 
         # second part is weight - int
         weight = parts[1][1:-1]
@@ -40,4 +40,29 @@ with open(manifestName, "r") as text:
         container = Container(location, weight, contents)
         containers.append(container)
 
+grid = functions.shipGrid(containers)
+left = functions.left(grid)
+right = functions.right(grid)
+goal = functions.reachGoal(left, right)
+initialState = functions.state(grid, left, right, goal)
+nextMoves = functions.computeMoves(initialState)
 
+
+#i think this should be like 66 
+print(len(nextMoves))
+
+#PROGRESS SO FAR:
+# need to fix compute moves, i think it should be 66 next moves but also not confident of that number 
+# so all the next moves from a state is like every container that u can place where that spot is 0
+# BUT, must have something below and can not be above urself 
+# to take care of the something below I js did a checkedCol thing bc we work from bottom up 
+# so if i alr checked a space cus it was empty then that whole col is good 
+
+# function general-search(problem, QUEUEING-FUNCTION)
+# nodes = MAKE-QUEUE(MAKE-NODE(problem.INITIAL-STATE))
+# loop do
+# if EMPTY(nodes) then return "failure" (we have proved there is no solution!)
+# node = REMOVE-FRONT(nodes)
+# if problem.GOAL-TEST(node.STATE) succeeds then return node
+# nodes = QUEUEING-FUNCTION(nodes, EXPAND(node, problem.OPERATORS))
+# end
