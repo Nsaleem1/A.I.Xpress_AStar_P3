@@ -58,6 +58,13 @@ print(len(nextMoves))
 # to take care of the something below I js did a checkedCol thing bc we work from bottom up 
 # so if i alr checked a space cus it was empty then that whole col is good 
 
+
+#NOTES:
+# dw abt Astar lets just do BFS and then we can try to figure out the heuristic 
+# if that is easier idk 
+# oh and same with tracking the time it takes we can probs js add that later
+
+
 # function general-search(problem, QUEUEING-FUNCTION)
 # nodes = MAKE-QUEUE(MAKE-NODE(problem.INITIAL-STATE))
 # loop do
