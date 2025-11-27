@@ -2,6 +2,7 @@ import math
 import matplotlib.pyplot as plt
 import random
 import copy
+from collections import deque
 import os
 
 class state:

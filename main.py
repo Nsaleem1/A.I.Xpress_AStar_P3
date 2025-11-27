@@ -68,3 +68,4 @@ print(len(nextMoves))
 # if problem.GOAL-TEST(node.STATE) succeeds then return node
 # nodes = QUEUEING-FUNCTION(nodes, EXPAND(node, problem.OPERATORS))
 # end
+
