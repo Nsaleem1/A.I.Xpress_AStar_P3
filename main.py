@@ -48,22 +48,16 @@ initialState = functions.state(grid, left, right, goal)
 nextMoves = functions.computeMoves(initialState)
 
 
-#i think this should be like 66 
 print(len(nextMoves))
 
-#PROGRESS SO FAR:
-# need to fix compute moves, i think it should be 66 next moves but also not confident of that number 
-# so all the next moves from a state is like every container that u can place where that spot is 0
-# BUT, must have something below and can not be above urself 
-# to take care of the something below I js did a checkedCol thing bc we work from bottom up 
-# so if i alr checked a space cus it was empty then that whole col is good 
 
+#PROGRESS SO FAR:
+# did all those functions and i think they r right
+# the only one that could be iffy is compute moves but i think it is right tbh
 
 #NOTES:
-# dw abt Astar lets just do BFS and then we can try to figure out the heuristic 
-# if that is easier idk 
+# dw abt Astar lets just do BFS and then we can try to figure out the heuristic if that seems easier 
 # oh and same with tracking the time it takes we can probs js add that later
-
 
 # function general-search(problem, QUEUEING-FUNCTION)
 # nodes = MAKE-QUEUE(MAKE-NODE(problem.INITIAL-STATE))

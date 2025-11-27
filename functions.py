@@ -11,7 +11,7 @@ class state:
         self.right = right
         self.goal = goal 
 
-#ship grid, contains the grid with weight in the x,y or None
+#ship grid, contains the grid with either container weight in the spot or None
 def shipGrid(containers):
     #create a matrix 9 x 13 (one more since manifest not start at (0,0))
     grid = [[0 for _ in range(13)] for _ in range(9)]
@@ -42,7 +42,8 @@ def right(grid):
     return totalWeight
 
 def reachGoal(left, right):
-    #only dealing with the one case right now 
+    #need to add the or reach minimal stuff otherwise if the test case never reach this condition
+    # it will be infinite loop
     if ((left - right) < (sum([left, right]) * 0.10)):
         return True
     return False
@@ -67,21 +68,26 @@ def computeMoves(state):
     for i in range (1,9):
         for j in range(1,13):
 
-            #this container is on the top since above it is 0, and container itself cant be 0
-            # need two cases bc if I m at like row 8 then above 
+
             checkedCol = []
-            if (i == 8 and grid[i][j] != 0):    
+            #so we dont check like the spot above us to move to since we cant move there
+            checkedCol.append(j)
+
+            # this container is on the top since above it is 0, and container itself cant be 0 or NAN
+            # need two cases bc if I m at like row 8 then above is out of the grid
+
+            if (i == 8 and grid[i][j] != 0 and grid[i][j] != None):    
                 # find an empty spot
                 for row in range (1,9):
                     for col in range (1,13):
-                        if (grid[row][col] == 0 and not (col in checkedCol) and (row - 1 != i) and (col - 1 != j)):
+                        if (grid[row][col] == 0 and not (col in checkedCol)):
                             nextStates.append(newState(i, j, row, col, copy.deepcopy(grid)))
                             checkedCol.append(col)
 
-            elif (i < 8 and grid[i+1][j] == 0 and grid[i][j] != 0):
+            elif (i < 8 and grid[i+1][j] == 0 and grid[i][j] != 0 and grid[i][j] != None):
                 for row in range (1,9):
                     for col in range (1,13):
-                        if (grid[row][col] == 0 and not (col in checkedCol) and (row - 1 != i) and (col - 1 != j)):
+                        if (grid[row][col] == 0 and not (col in checkedCol)):
                             nextStates.append(newState(i, j, row, col, copy.deepcopy(grid)))
                             checkedCol.append(col)
     return nextStates
