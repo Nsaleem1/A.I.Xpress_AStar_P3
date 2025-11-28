@@ -6,11 +6,15 @@ from collections import deque
 import os
 
 class state:
-    def __init__(self, grid, left, right, goal):
+    def __init__(self, grid, left, right, goal, time):
         self.grid = grid
         self.left = left
         self.right = right
         self.goal = goal 
+        self.time = time 
+
+    def __eq__(self, other):
+        return isinstance(other, state) and self.grid == other.grid
 
 #ship grid, contains the grid with a grid object
 # grid object has weight,content 
@@ -46,8 +50,8 @@ def reachGoal(grid):
     return False
 
 
-def newState(oldRow, oldCol, newRow, newCol, grid):
-
+def newState(oldRow, oldCol, newRow, newCol, currState):
+    grid = currState.grid
     value = grid[oldRow][oldCol][0]
     content = grid[oldRow][oldCol][1]
 
@@ -56,7 +60,9 @@ def newState(oldRow, oldCol, newRow, newCol, grid):
     #add to new loc
     grid[newRow][newCol] = (value, content)
 
-    return state(grid, left(grid), right(grid), reachGoal(grid))
+    time = manhattan((oldRow, oldCol), (newRow, newCol)) + currState.time
+
+    return state(grid, left(grid), right(grid), reachGoal(grid), time)
 
 # assume that 0 means spot is empty
 # None is spot we cant go to 
@@ -68,7 +74,7 @@ def computeMoves(state):
 
     #look at top of each column
     # compute all moves for that container
-
+  
     for i in range (1,9):
         for j in range(1,13):
 
@@ -83,16 +89,17 @@ def computeMoves(state):
                 # find an empty spot
                 for row in range (1,9):
                     for col in range (1,13):
-                        if (grid[row][col] == 0 and not (col in checkedCol)):
-                            nextStates.append(newState(i, j, row, col, copy.deepcopy(grid)))
+                        if (grid[row][col][0] == 0 and grid[row][col][1] != "NAN" and not (col in checkedCol)):
+                            nextStates.append(newState(i, j, row, col, copy.deepcopy(state)))
                             checkedCol.append(col)
-
-            elif (i < 8 and grid[i+1][j][0] == 0 and grid[i][j][0] != 0 and grid[i][j][1] != "NAN"):
+            
+            elif ((i < 8) and (grid[i+1][j][0] == 0) and (grid[i][j][0] != 0) and (grid[i][j][1] != "NAN")):
                 for row in range (1,9):
                     for col in range (1,13):
-                        if (grid[row][col] == 0 and not (col in checkedCol)):
-                            nextStates.append(newState(i, j, row, col, copy.deepcopy(grid)))
+                        if (grid[row][col][0] == 0 and grid[row][col][1] != "NAN" and not (col in checkedCol)):
+                            nextStates.append(newState(i, j, row, col, copy.deepcopy(state)))
                             checkedCol.append(col)
+            
     return nextStates
 
 def edgeCase(initialState, containers):
@@ -143,35 +150,30 @@ def BFS(start):
     minWeight = float('inf')
     unvisited = deque()
     unvisited.append(start)
-    visited = set()
+    visited = []
    
     while unvisited:
-        #select state from queue, get its next states, add to visited
+        #select state from queue, get its next states
         currState = unvisited.popleft()
         nextMoves = computeMoves(copy.deepcopy(currState))
-
-        #PROBLEM FOR TEST I PRINT NEXT MOVES AND I GET 0 ?? should be 66 for the first state
-        print(len(nextMoves))
-        
         goal = reachGoal(currState.grid)
-        visited.add(currState)
-
+        visited.append(currState)
+      
         #if its goal, we are done
         if goal:
             return currState
 
         #else calculate next states
         for next in nextMoves:
-            if(next not in visited):
+            if next not in visited:
                 unvisited.append(next)
         
-
         #keep track of most balanced option too 
-        weightVal = left(currState.grid) - right(currState.grid)
+        weightVal = abs(left(currState.grid) - right(currState.grid))
         if weightVal < minWeight:
             minWeight = weightVal
             minState = currState
-        
+     
     return minState
 
 
@@ -182,10 +184,16 @@ def updateManifest(goalGrid, manifestName):
         for i in range(1,9):
             for j in range(1,13):
                 container = goalGrid[i][j]
-                contWeight = str(container[0]).zfill(4)
+                contWeight = str(container[0]).zfill(5)
                 row = str(i).zfill(2)
                 col = str(j).zfill(2)
-                f.write(f"[{row}, {col}], {{{contWeight}}}, {container[1]}\n")
+                f.write(f"[{row},{col}], {{{contWeight}}}, {container[1]}\n")
+
+def manhattan(loc1, loc2):
+    return abs(loc1[0] - loc2[0]) + abs(loc1[1] - loc2[1])
+
+
+
 
 
 

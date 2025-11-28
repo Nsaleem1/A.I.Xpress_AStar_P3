@@ -45,7 +45,7 @@ grid = functions.shipGrid(containers)
 left = functions.left(grid)
 right = functions.right(grid)
 goal = functions.reachGoal(grid)
-initialState = functions.state(grid, left, right, goal)
+initialState = functions.state(grid, left, right, goal, 0)
 
 #see if it is an edge case, else run regular BFS
 foundGoal = initialState
@@ -54,15 +54,15 @@ if not isEdge:
     foundGoal = functions.BFS(initialState)
 
 functions.updateManifest(foundGoal.grid, manifestName)
-print("Proram was successful. See Updated Manifest.")
+print(f"\nProgram was successful. See Updated Manifest. \nTotal time was {foundGoal.time} minutes.\n")
 
 
 #PROGRESS SO FAR:
-# completed BFS approach, but I m getting logic error look at BFS function
-# need to check my functions
+# completed BFS approach, js need to check somehow if its right dk how to 
+# but all the cases seem to work?
 
-#NOTES:
-# include time, maybe computeTime function or sum 
-# make it a star 
+#To-DO/Notes:
+# create and add heuristic for Astar function  
+# make up some data test cases to testttt 
 
 
