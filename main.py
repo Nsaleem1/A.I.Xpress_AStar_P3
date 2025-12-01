@@ -53,14 +53,11 @@ isEdge = functions.edgeCase(initialState , containers)
 if not isEdge:
     foundGoal = functions.BFS(initialState)
     print(f"\nBFS total time was {foundGoal.time} minutes\n")
-    foundGoal = functions.Astar(initialState)
+    foundGoal = functions.AStar(initialState)
     functions.backtrack(foundGoal, initialState)
     print(f"\nAstar total time was {foundGoal.time} minutes\n")
     print("Updated Manifest is for Astar and the Moves.txt file\n")
     functions.updateManifest(foundGoal.grid, manifestName)
-    foundGoal = functions.AStarOptimal(initialState)
-    print(f"\nOptimal Astar time was {foundGoal.time} minutes\n")
-
 else:
     print("\n This case was one of the edge cases, no need for BFS/Astar. Manifest is same.\n")
 

@@ -8,6 +8,7 @@ import os
 
 import heapq
 from itertools import count
+
 class state:
     def __init__(self, grid, left, right, goal, time, parent):
         self.grid = grid
@@ -187,7 +188,6 @@ def BFS(start):
                 unvisited.append(neighbor)
                 visited.add(neighbor_grid_tuple)
 
-
         #if its goal, we are done
         if reachGoal(currState.grid):
             return currState
@@ -202,55 +202,15 @@ def BFS(start):
 
 # my heuristic is time + total distance 
 # choosing the move with less time and makes more balanced 
-def Astar(start):
-
-    #need this counter to break ties for heuristic
+def AStar(start):
     counter = count()
+    unvisited = []
     minWeight = float('inf')
-    unvisited = []
-    heapq.heappush(unvisited, (0, next(counter), start))
-    visited = set()
-   
-    #this is to get the grid as coordinates (x,y) so we can compare grids
-    grid_to_tuple = lambda grid: tuple(tuple(row) for row in grid)
-
-    visited.add(grid_to_tuple(start.grid))
-    while unvisited:
-        #select state from queue, get its next states
-        priority, _, currState = heapq.heappop(unvisited)
-        nextMoves = computeMoves(copy.deepcopy(currState))
-
-        # calculate next states
-        for neighbor in nextMoves:
-            #convert the grid to tuple
-            neighbor_grid_tuple = grid_to_tuple(neighbor.grid)
-            if neighbor_grid_tuple not in visited:
-                neighbor.parent = currState
-                heapq.heappush(unvisited, (computeHeuristic(neighbor), next(counter), neighbor))
-                visited.add(neighbor_grid_tuple)
-
-        #if its goal, we are done
-        if reachGoal(currState.grid):
-            return currState
-             
-        #keep track of most balanced option too 
-        weightVal = abs(left(currState.grid) - right(currState.grid))
-        if weightVal < minWeight:
-            minWeight = weightVal
-            minState = currState
-     
-    return minState
-
-def AStarOptimal(start):
-    counter = count()
-    unvisited = []
     heapq.heappush(unvisited, (computeHeuristic(start), next(counter), start))
 
     grid_to_tuple = lambda g: tuple(tuple(row) for row in g)
+    #stores best so far cost of each grid 
     cost_so_far = {grid_to_tuple(start.grid): start.time}
-
-    minWeight = abs(left(start.grid) - right(start.grid))
-    minState = start
 
     while unvisited:
         _, _, currState = heapq.heappop(unvisited)
@@ -259,25 +219,25 @@ def AStarOptimal(start):
         if reachGoal(currState.grid):
             return currState
 
+        # Generate neighbors
+        nextMoves = computeMoves(currState)  
+
+        for neighbor in nextMoves:
+            neighbor_tuple = grid_to_tuple(neighbor.grid)
+            new_cost = neighbor.time  
+
+            # Add neighbor if not visited or if this path is faster (lower time)
+            if neighbor_tuple not in cost_so_far or new_cost < cost_so_far[neighbor_tuple]:
+                cost_so_far[neighbor_tuple] = new_cost
+                neighbor.parent = currState
+                heapq.heappush(unvisited, (computeHeuristic(neighbor), next(counter), neighbor))
+        
         # Track most balanced option
         weightVal = abs(left(currState.grid) - right(currState.grid))
         if weightVal < minWeight:
             minWeight = weightVal
             minState = currState
 
-        # Generate neighbors
-        nextMoves = computeMoves(currState)  
-
-        for neighbor in nextMoves:
-            neighbor_tuple = grid_to_tuple(neighbor.grid)
-            new_cost = neighbor.time  # your computeHeuristic already uses time
-
-            # Add neighbor if not visited or if this path is faster (lower time)
-            if neighbor_tuple not in cost_so_far or new_cost < cost_so_far[neighbor_tuple]:
-                cost_so_far[neighbor_tuple] = new_cost
-                neighbor.parent = currState
-                priority = computeHeuristic(neighbor)
-                heapq.heappush(unvisited, (priority, next(counter), neighbor))
     return minState
 
 
