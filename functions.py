@@ -224,17 +224,18 @@ def AStar(start):
 
         for neighbor in nextMoves:
             neighbor_tuple = grid_to_tuple(neighbor.grid)
-            new_cost = neighbor.time  
+            newCost = neighbor.time  
 
             # Add neighbor if not visited or if this path is faster (lower time)
-            if neighbor_tuple not in cost_so_far or new_cost < cost_so_far[neighbor_tuple]:
-                cost_so_far[neighbor_tuple] = new_cost
+            if neighbor_tuple not in cost_so_far or newCost < cost_so_far[neighbor_tuple]:
+                cost_so_far[neighbor_tuple] = newCost
                 neighbor.parent = currState
-                heapq.heappush(unvisited, (computeHeuristic(neighbor), next(counter), neighbor))
+                fValue = newCost + computeHeuristic(neighbor)
+                heapq.heappush(unvisited, (fValue, next(counter), neighbor))
         
-        # Track most balanced option
+        # Track most balanced option. If weights are equal, prioritize the cheaper path (lower time).
         weightVal = abs(left(currState.grid) - right(currState.grid))
-        if weightVal < minWeight:
+        if weightVal < minWeight or (weightVal == minWeight and currState.time < minState.time):
             minWeight = weightVal
             minState = currState
 
