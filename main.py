@@ -31,7 +31,7 @@ with open(manifestName, "r") as text:
 
         # second part is weight - int
         weight = parts[1][1:-1]
-        #weight = int(part2)
+        weight = int(weight)
 
         # third part is contents - str
         contents = parts[2]
@@ -64,6 +64,11 @@ if not isEdge:
 else:
     print("\n This case was one of the edge cases, no need for BFS/Astar. Manifest is same.\n")
 
+functions.printGridWithBalance(initialState.grid, "Initial Ship Grid")
+functions.printGridWithBalance(foundGoal.grid, "Final Ship Grid (Goal)")
+#PROGRESS SO FAR:
+# completed BFS approach, js need to check somehow if its right dk how to 
+# but all the cases seem to work?
 
 #TO-DO
 # create the UI
