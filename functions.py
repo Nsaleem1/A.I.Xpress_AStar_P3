@@ -4,7 +4,6 @@ import random
 import copy
 from collections import deque
 import os
-#import tkinter as tk
 
 import heapq
 from itertools import count
