@@ -200,7 +200,7 @@ def BFS(start):
      
     return minState
 
-# my heuristic is time + total distance 
+# my heuristic is time + diff in weights
 # choosing the move with less time and makes more balanced 
 def AStar(start):
     counter = count()
@@ -301,6 +301,13 @@ def backtrack(currState, start):
     path.reverse()
 
     with open("Moves.txt", "w") as f:
+        #write down the moves
+        for i in range(len(path) - 1):
+            grid1 = path[i].grid
+            grid2 = path[i+1].grid
+            gridAction = getAction(grid1, grid2)
+            f.write(f"{gridAction}\n")
+
         for state in path:
             f.write(print_grid(state.grid) + "\n\n")  # write the grid string to file
 
@@ -325,7 +332,29 @@ def print_grid(grid):
     grid_str = "\n".join(lines)
     return grid_str 
 
+def getAction(grid1, grid2):
+    old_pos = None
+    new_pos = None
+    moved_container = None
 
+    for r in range(9):
+        for c in range(13):
+            w1, name1 = grid1[r][c]
+            w2, name2 = grid2[r][c]
+
+            # Container disappeared → old position
+            if name1 != "UNUSED" and name2 == "UNUSED":
+                old_pos = (r, c)
+                moved_container = name1
+
+            # Container appeared → new position
+            if name1 == "UNUSED" and name2 != "UNUSED":
+                new_pos = (r, c)
+
+    if moved_container and old_pos and new_pos:
+        return f'move "{moved_container}" from {old_pos} to {new_pos}'
+
+    return "no single move detected"
 
 
 
