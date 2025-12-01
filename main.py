@@ -45,24 +45,29 @@ grid = functions.shipGrid(containers)
 left = functions.left(grid)
 right = functions.right(grid)
 goal = functions.reachGoal(grid)
-initialState = functions.state(grid, left, right, goal, 0)
+initialState = functions.state(grid, left, right, goal, 0, parent=None)
 
-#see if it is an edge case, else run regular BFS
+#see if it is an edge case, else run BFS and Astar
 foundGoal = initialState
 isEdge = functions.edgeCase(initialState , containers)
 if not isEdge:
     foundGoal = functions.BFS(initialState)
+    print(f"\nBFS total time was {foundGoal.time} minutes\n")
+    foundGoal = functions.Astar(initialState)
+    functions.backtrack(foundGoal, initialState)
+    print(f"\nAstar total time was {foundGoal.time} minutes\n")
+    print("Updated Manifest is for Astar and the Moves.txt file\n")
+    functions.updateManifest(foundGoal.grid, manifestName)
+    foundGoal = functions.AStarOptimal(initialState)
+    print(f"\nOptimal Astar time was {foundGoal.time} minutes\n")
 
-functions.updateManifest(foundGoal.grid, manifestName)
-print(f"\nProgram was successful. See Updated Manifest. \nTotal time was {foundGoal.time} minutes.\n")
+else:
+    print("\n This case was one of the edge cases, no need for BFS/Astar. Manifest is same.\n")
 
 
-#PROGRESS SO FAR:
-# completed BFS approach, js need to check somehow if its right dk how to 
-# but all the cases seem to work?
+#TO-DO
+# create the UI
+# test the program
 
-#To-DO/Notes:
-# create and add heuristic for Astar function  
-# make up some data test cases to testttt 
 
 
