@@ -7,6 +7,7 @@ import os
 
 import heapq
 from itertools import count
+
 class state:
     def __init__(self, grid, left, right, goal, time, parent):
         self.grid = grid
@@ -186,7 +187,6 @@ def BFS(start):
                 unvisited.append(neighbor)
                 visited.add(neighbor_grid_tuple)
 
-
         #if its goal, we are done
         if reachGoal(currState.grid):
             return currState
@@ -199,57 +199,17 @@ def BFS(start):
      
     return minState
 
-# my heuristic is time + total distance 
+# my heuristic is time + diff in weights
 # choosing the move with less time and makes more balanced 
-def Astar(start):
-
-    #need this counter to break ties for heuristic
+def AStar(start):
     counter = count()
+    unvisited = []
     minWeight = float('inf')
-    unvisited = []
-    heapq.heappush(unvisited, (0, next(counter), start))
-    visited = set()
-   
-    #this is to get the grid as coordinates (x,y) so we can compare grids
-    grid_to_tuple = lambda grid: tuple(tuple(row) for row in grid)
-
-    visited.add(grid_to_tuple(start.grid))
-    while unvisited:
-        #select state from queue, get its next states
-        priority, _, currState = heapq.heappop(unvisited)
-        nextMoves = computeMoves(copy.deepcopy(currState))
-
-        # calculate next states
-        for neighbor in nextMoves:
-            #convert the grid to tuple
-            neighbor_grid_tuple = grid_to_tuple(neighbor.grid)
-            if neighbor_grid_tuple not in visited:
-                neighbor.parent = currState
-                heapq.heappush(unvisited, (computeHeuristic(neighbor), next(counter), neighbor))
-                visited.add(neighbor_grid_tuple)
-
-        #if its goal, we are done
-        if reachGoal(currState.grid):
-            return currState
-             
-        #keep track of most balanced option too 
-        weightVal = abs(left(currState.grid) - right(currState.grid))
-        if weightVal < minWeight:
-            minWeight = weightVal
-            minState = currState
-     
-    return minState
-
-def AStarOptimal(start):
-    counter = count()
-    unvisited = []
     heapq.heappush(unvisited, (computeHeuristic(start), next(counter), start))
 
     grid_to_tuple = lambda g: tuple(tuple(row) for row in g)
+    #stores best so far cost of each grid 
     cost_so_far = {grid_to_tuple(start.grid): start.time}
-
-    minWeight = abs(left(start.grid) - right(start.grid))
-    minState = start
 
     while unvisited:
         _, _, currState = heapq.heappop(unvisited)
@@ -258,25 +218,26 @@ def AStarOptimal(start):
         if reachGoal(currState.grid):
             return currState
 
-        # Track most balanced option
-        weightVal = abs(left(currState.grid) - right(currState.grid))
-        if weightVal < minWeight:
-            minWeight = weightVal
-            minState = currState
-
         # Generate neighbors
         nextMoves = computeMoves(currState)  
 
         for neighbor in nextMoves:
             neighbor_tuple = grid_to_tuple(neighbor.grid)
-            new_cost = neighbor.time  # your computeHeuristic already uses time
+            newCost = neighbor.time  
 
             # Add neighbor if not visited or if this path is faster (lower time)
-            if neighbor_tuple not in cost_so_far or new_cost < cost_so_far[neighbor_tuple]:
-                cost_so_far[neighbor_tuple] = new_cost
+            if neighbor_tuple not in cost_so_far or newCost < cost_so_far[neighbor_tuple]:
+                cost_so_far[neighbor_tuple] = newCost
                 neighbor.parent = currState
-                priority = computeHeuristic(neighbor)
-                heapq.heappush(unvisited, (priority, next(counter), neighbor))
+                fValue = newCost + computeHeuristic(neighbor)
+                heapq.heappush(unvisited, (fValue, next(counter), neighbor))
+        
+        # Track most balanced option. If weights are equal, prioritize the cheaper path (lower time).
+        weightVal = abs(left(currState.grid) - right(currState.grid))
+        if weightVal < minWeight or (weightVal == minWeight and currState.time < minState.time):
+            minWeight = weightVal
+            minState = currState
+
     return minState
 
 
@@ -340,6 +301,13 @@ def backtrack(currState, start):
     path.reverse()
 
     with open("Moves.txt", "w") as f:
+        #write down the moves
+        for i in range(len(path) - 1):
+            grid1 = path[i].grid
+            grid2 = path[i+1].grid
+            gridAction = getAction(grid1, grid2)
+            f.write(f"{gridAction}\n")
+
         for state in path:
             f.write(print_grid(state.grid) + "\n\n")  # write the grid string to file
 
@@ -364,7 +332,29 @@ def print_grid(grid):
     grid_str = "\n".join(lines)
     return grid_str 
 
+def getAction(grid1, grid2):
+    old_pos = None
+    new_pos = None
+    moved_container = None
 
+    for r in range(9):
+        for c in range(13):
+            w1, name1 = grid1[r][c]
+            w2, name2 = grid2[r][c]
+
+            # Container disappeared → old position
+            if name1 != "UNUSED" and name2 == "UNUSED":
+                old_pos = (r, c)
+                moved_container = name1
+
+            # Container appeared → new position
+            if name1 == "UNUSED" and name2 != "UNUSED":
+                new_pos = (r, c)
+
+    if moved_container and old_pos and new_pos:
+        return f'move "{moved_container}" from {old_pos} to {new_pos}'
+
+    return "no single move detected"
 
 
 
