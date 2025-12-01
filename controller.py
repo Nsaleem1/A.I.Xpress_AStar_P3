@@ -46,7 +46,7 @@ class Controller:
 
         # --- Solve ---
         if not functions.edgeCase(self.initialState, containers):
-            self.foundGoal = functions.AStarOptimal(self.initialState)
+            self.foundGoal = functions.AStar(self.initialState)
         else:
             self.foundGoal = self.initialState
 
