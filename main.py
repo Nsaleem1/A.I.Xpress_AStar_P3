@@ -16,7 +16,7 @@ class Container:
         self.weight = weight
         self.contents = contents
 
-# read file
+## read file
 # with open(manifestName, "r") as text:
 #     for line in text:
 #         # split each row by the commas
@@ -62,16 +62,5 @@ class Container:
 
 # else:
 #     print("\n This case was one of the edge cases, no need for BFS/Astar. Manifest is same.\n")
-
-# functions.printGridWithBalance(initialState.grid, "Initial Ship Grid")
-# functions.printGridWithBalance(foundGoal.grid, "Final Ship Grid (Goal)")
-#PROGRESS SO FAR:
-# completed BFS approach, js need to check somehow if its right dk how to 
-# but all the cases seem to work?
-
-#TO-DO
-# create the UI
-# test the program
-
 
 
