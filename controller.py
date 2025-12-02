@@ -1,9 +1,8 @@
-# controller.py
 import tkinter as tk
 from tkinter import filedialog, messagebox
 import os
+from functions import Container
 import functions
-from main import Container   # your class
 
 class Controller:
     def __init__(self, root):
