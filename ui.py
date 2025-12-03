@@ -88,10 +88,10 @@ class ShipUI:
                 elif weight == 0:
                     fill = "white"
                 else:
-                    fill = "green"
+                    fill = "yellow"
 
                 if source == (r, c):
-                    fill = "orange"
+                    fill = "green"
                 elif target == (r, c):
                     fill = "red"
 
@@ -99,12 +99,16 @@ class ShipUI:
                                              fill=fill,
                                              outline=border,
                                              )
-
+                text=str(contents)
+                if len(text) > 6:
+                    text = text[:4] + "..."
                 if weight > 0:
                     self.canvas.create_text((x0 + CELL/2),
                                             (y0 + CELL/2),
-                                            text=str(weight),
-                                            font=("Arial", 12, "bold"))
+                                            # text=str(contents),
+                                            text=text,
+                                            font=("Arial", 12, "bold"),
+                                            fill="black")
         park_r, park_c = PARK
         x0 = (park_c - 1) * CELL
         #y0 = ROWS * CELL       # directly above row 8
@@ -124,12 +128,13 @@ class ShipUI:
             (x0 + CELL/2),
             (y0 + CELL/2),
             text="Park",
-            font=("Arial", 10, "bold")
+            font=("Arial", 10, "bold"),
+            fill="black"
         )
 
         # Highlight PARK if it's source/target
         if source == PARK:
-            self.canvas.create_rectangle(x0, y0, x1, y1, fill="orange", outline="black")
+            self.canvas.create_rectangle(x0, y0, x1, y1, fill="green", outline="black")
         elif target == PARK:
             self.canvas.create_rectangle(x0, y0, x1, y1, fill="red", outline="black")
 
