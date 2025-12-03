@@ -1,12 +1,15 @@
-import math
-import random
+import matplotlib.pyplot as plt
 import copy
 from collections import deque
-import os
-
 import heapq
 from itertools import count
 
+# container class, each cont has a loc, weight, and contents section
+class Container:
+    def __init__(self, location, weight, contents):
+        self.location = location
+        self.weight = weight
+        self.contents = contents
 class state:
     def __init__(self, grid, left, right, goal, time, parent):
         self.grid = grid
@@ -55,20 +58,6 @@ def reachGoal(grid):
         return True
     return False
 
-
-# def newState(oldRow, oldCol, newRow, newCol, currState):
-#     grid = currState.grid
-#     value = grid[oldRow][oldCol][0]
-#     content = grid[oldRow][oldCol][1]
-
-#     #empty curr location
-#     grid[oldRow][oldCol] = (0, "UNUSED")
-#     #add to new loc
-#     grid[newRow][newCol] = (value, content)
-
-#     time = manhattan((oldRow, oldCol), (newRow, newCol)) + currState.time
-
-#     return state(grid, left(grid), right(grid), reachGoal(grid), time)
 def newState(oldRow, oldCol, newRow, newCol, currState):
     grid = copy.deepcopy(currState.grid)   # ← FIXED
 
@@ -82,7 +71,6 @@ def newState(oldRow, oldCol, newRow, newCol, currState):
     return state(grid, left(grid), right(grid), reachGoal(grid), time, currState)
 
 # assume that 0 means spot is empty
-# None is spot we cant go to 
 # make sure not to put anything in the 0 row/column
 def computeMoves(state):
     grid = state.grid
