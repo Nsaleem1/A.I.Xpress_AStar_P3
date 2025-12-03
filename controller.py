@@ -15,9 +15,14 @@ class Controller:
         self.current_index = 0
         self.initialState = None
         self.foundGoal = None
+        self.manifest_name = None
+
 
     # User clicked "Load Manifest"
     def load_manifest_file(self):
+        # write to log
+        self.ui.log("Program was started.")
+        # 
         file_path = filedialog.askopenfilename(
             title="Select Manifest",
             filetypes=[("Text Files", "*.txt")]
@@ -25,7 +30,12 @@ class Controller:
         if not file_path:
             return
 
-        self.fileName = os.path.basename(file_path)  # <-- ADD THIS LINE
+        # self.fileName = os.path.basename(file_path)  
+        # self.ui.manifest_name = self.fileName
+
+        self.manifest_name = os.path.basename(file_path)
+        ## write to log
+        #self.ui.log(f"Manifest {self.manifest_name} is opened.")
 
         # --- Load containers (your original code) ---
         containers = []
@@ -37,12 +47,29 @@ class Controller:
                 weight = int(parts[1][1:-1])
                 contents = parts[2]
                 containers.append(Container((int(r), int(c)), weight, contents))
-
+        
+        count = 0
+        for container in containers:
+            if container.weight > 0:
+                count = count + 1
+        # write to log
+        # self.ui.log(f"Manifest {self.manifest_name} is opened, there are {count} containers on the ship.")
+        # self.ui.append_info(f"{self.manifest_name[0:-4]} has {count} containers\n"
+        #                     "Computing a Solution...\n")
+        #
         # --- Build state ---
         grid = functions.shipGrid(containers)
         left = functions.left(grid)
         right = functions.right(grid)
         goal = functions.reachGoal(grid)
+
+        ## comptuting a solution
+        self.ui.log(f"Manifest {self.manifest_name} is opened, there are {count} containers on the ship.")
+        self.ui.append_info(f"{self.manifest_name[0:-4]} has {count} containers\n"
+                    "Computing a Solution...\n")
+        self.ui.root.update_idletasks()
+        ##
+
 
         self.initialState = functions.state(grid, left, right, goal, 0, parent=None)
 
@@ -139,6 +166,9 @@ class Controller:
             move_text = functions.getAction(curr_state.grid, next_state.grid)
             formatted = f"{ui.move_counter} of {ui.total_moves}: {move_text}"
             self.ui.append_info(formatted)
+            ## write to log 
+            self.ui.log(formatted)
+            #
             return
         else:
             # Second click: perform move
@@ -155,15 +185,16 @@ class Controller:
                 # Last move has now been executed → show final grid
                 # ui.info.config(text="All moves have been completed.\nPress ENTER to finish.")
                 desktop = os.path.join(os.path.expanduser("~"), "Desktop")
-                out = os.path.join(desktop, f"{self.fileName[0:-4]}.txt")
+                out = os.path.join(desktop, f"{self.manifest_name[0:-4]}.txt")
                 functions.updateManifest(self.path[-1].grid, out)
                 self.ui.append_info(f"\nDone!!\n" 
-                                    f"An updated manifest has been written to the desktop as "
-                                    f"{self.fileName[0:-4]}OUTBOUND.txt\n"
+                                    f"An updated manifest has been written to the desktop as\n"
+                                    f"{self.manifest_name[0:-4]}OUTBOUND.txt\n"
                                     f"Email it to the captain.\n"
                                     f"Hit ENTER when done.")
+                ## write to log
+                ##
                 return   # DO NOT call finish yet
-            
             return
         
         # if self.current_index + 1 >= len(self.path):
