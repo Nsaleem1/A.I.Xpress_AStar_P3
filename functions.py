@@ -343,7 +343,9 @@ def getAction(grid1, grid2):
     if moved_container and old_pos and new_pos:
             old_str = f"[{old_pos[0]:02d}, {old_pos[1]:02d}]"
             new_str = f"[{new_pos[0]:02d}, {new_pos[1]:02d}]"
-            return f'move "{moved_container}" from {old_str} to {new_str}'
+            #return f'move "{moved_container}" from {old_str} to {new_str}'
+            duration = manhattan(old_pos, new_pos)
+            return f'move "{moved_container}" from {old_str} to {new_str}, {duration} minutes'
     return "no single move detected"
 
 

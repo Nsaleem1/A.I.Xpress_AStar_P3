@@ -26,8 +26,10 @@ class ShipUI:
         )
         self.canvas.pack(pady=15)
 
-        self.info = tk.Label(root, text="Enter a manifest.", font=("Arial", 14))
-        self.info.pack()
+        # self.info = tk.Label(root, text="Enter a manifest.", font=("Arial", 14))
+        # self.info.pack()
+        self.info = tk.Text(root, width=67, height=8, font=("Arial", 12), state="disabled")
+        self.info.pack(padx=10, pady=(10,5))
 
         btn_frame = tk.Frame(root)
         btn_frame.pack(pady=10)
@@ -47,11 +49,18 @@ class ShipUI:
         self.phase = "preview"
         path[0].is_first = True
         path[-1].is_last = True
-        self.info.config(text=f"A solution has been found! It will take\n"
-                         f"{len(path)-1} move(s) and {path[-1].time} minute(s)\n"
-                         f"Hit ENTER to begin")
+        # self.info.config(text=f"A solution has been found! It will take\n"
+        #                  f"{len(path)-1} move(s) and {path[-1].time} minute(s)\n"
+        #                  f"Hit ENTER to begin")
+        self.append_info(f"A solution has been found! It will take\n"
+                            f"{len(path)-1} move(s) and {path[-1].time} minute(s)\n"
+                            f"Hit ENTER to begin\n")
+
         self.next_btn.config(state="normal")
         self.draw_grid(path[0].grid)
+        self.total_moves = len(self.path) - 1
+        self.move_counter = 0
+
 
     def draw_grid(self, grid, source=None, target=None):
         self.canvas.delete("all")
@@ -148,8 +157,8 @@ class ShipUI:
             source = source_override
         if target_override:
             target = target_override
-        move_text = functions.getAction(curr_state.grid, next_state.grid)
-        self.info.config(text=f"Next move: {move_text}")
+        #move_text = functions.getAction(curr_state.grid, next_state.grid)
+        #self.append_info(f"Next move: {move_text}")
         self.draw_grid(curr_state.grid, source, target)
 
 
@@ -157,7 +166,7 @@ class ShipUI:
         self.next_btn.config(state="disabled")
         self.clearGrid()  # <-- you should implement this in your UI class
 
-        self.info.config(text="Enter a manifest.")
+        self.append_info("Enter a manifest.")
         self.path = []
         self.current_index = 0
         self.foundGoal = None
@@ -166,4 +175,14 @@ class ShipUI:
 
     def clearGrid(self):
         self.canvas.delete("all")
+        self.info.config(state="normal") 
+        self.info.delete("1.0", tk.END)
+        self.info.config(state="normal") 
+
+    def append_info(self, text):
+        self.info.config(state="normal")
+        self.info.insert("end", text + "\n")
+        self.info.config(state="disabled")
+        self.info.see("end")   # auto-scroll
+
 
