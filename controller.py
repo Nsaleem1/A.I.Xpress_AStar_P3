@@ -36,7 +36,7 @@ class Controller:
                 r, c = loc.split(",")
                 weight = int(parts[1][1:-1])
                 contents = parts[2]
-                containers.append(Container((int(r), int(c)), weight, contents, coord=parts[0]))
+                containers.append(Container((int(r), int(c)), weight, contents))
 
         # --- Build state ---
         grid = functions.shipGrid(containers)
