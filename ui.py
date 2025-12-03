@@ -12,12 +12,19 @@ class ShipUI:
         self.root = root
         self.controller = controller
         ##
-        self.current_index = 0
-        self.phase = "preview"
+        # self.current_index = 0
+        # self.phase = "preview"
         self.previewed = False
         ##
         root.title("Ship Balancer")
 
+        # log stuff 
+        self.session_start = functions.timestamp_now()   # store start timestamp
+
+        self.log_entries = []                            # list of all log lines
+        root.protocol("WM_DELETE_WINDOW", self.on_close)
+
+        #
         self.canvas = tk.Canvas(
             root,
             width=COLS * CELL,
@@ -33,6 +40,11 @@ class ShipUI:
 
         btn_frame = tk.Frame(root)
         btn_frame.pack(pady=10)
+
+        #log stuff 
+        tk.Button(btn_frame, text="Add Comment",
+          command=self.add_comment_popup).grid(row=0, column=2, padx=20)
+        ##
 
         tk.Button(btn_frame, text="Load Manifest",
                   command=self.controller.load_manifest_file).grid(row=0, column=0, padx=20)
@@ -52,6 +64,9 @@ class ShipUI:
         # self.info.config(text=f"A solution has been found! It will take\n"
         #                  f"{len(path)-1} move(s) and {path[-1].time} minute(s)\n"
         #                  f"Hit ENTER to begin")
+        ## write to log
+        self.log(f"Balance solution found, it will require {len(path)-1} move(s) and {path[-1].time} minutes.")
+        ##
         self.append_info(f"A solution has been found! It will take\n"
                             f"{len(path)-1} move(s) and {path[-1].time} minute(s)\n"
                             f"Hit ENTER to begin\n")
@@ -176,7 +191,7 @@ class ShipUI:
         self.current_index = 0
         self.foundGoal = None
         self.initialState = None
-        self.manifest_name = None
+        #self.manifest_name = None
 
     def clearGrid(self):
         self.canvas.delete("all")
@@ -189,5 +204,58 @@ class ShipUI:
         self.info.insert("end", text + "\n")
         self.info.config(state="disabled")
         self.info.see("end")   # auto-scroll
+
+    ## log stuff
+    def log(self, text):
+        """Add a timestamped event to the session log."""
+        ts = functions.timestamp_now().strftime("%m %d %Y: %I%M")  # uniform format
+        entry = f"{ts} {text}"
+        self.log_entries.append(entry)
+    
+    def write_log_file(self):
+        """Write final log to desktop when program shuts down."""
+        import os
+        
+        dt = self.session_start
+        
+        manifest = self.controller.manifest_name[0:-4]
+
+        fname = f"{manifest}_{dt.strftime('%m_%d_%Y_%I%M')}.txt"
+
+        ## write to log
+        self.log(f"Finished a Cycle. Manifest {fname} was written to desktop.")
+        # 
+
+        desktop = os.path.join(os.path.expanduser("~"), "Desktop")
+        path = os.path.join(desktop, fname)
+
+        with open(path, "w") as f:
+            for line in self.log_entries:
+                f.write(line + "\n")
+
+    def on_close(self):
+        self.log("Program was shut down.")
+        self.write_log_file()
+        self.root.destroy()
+
+    def add_comment_popup(self):
+        win = tk.Toplevel(self.root)
+        win.title("Add Log Comment")
+
+        tk.Label(win, text="Enter comment:").pack(pady=5)
+        entry = tk.Text(win, width=50, height=5)
+        entry.pack()
+
+        def save():
+            comment = entry.get("1.0", tk.END).strip()
+            if comment:
+                self.log(comment)
+                # self.append_info(f"NOTE logged: {comment}")
+            win.destroy()
+
+        tk.Button(win, text="Save", command=save).pack(pady=10)
+
+    ##
+
 
 

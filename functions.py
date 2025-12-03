@@ -3,6 +3,17 @@ import copy
 from collections import deque
 import heapq
 from itertools import count
+## log stuff 
+from datetime import datetime
+
+def timestamp_now():
+    return datetime.now()
+
+def timestamp_string(dt=None):
+    if dt is None:
+        dt = datetime.now()
+    return dt.strftime("%m %d %Y: %H:%M")
+##
 
 # container class, each cont has a loc, weight, and contents section
 class Container:
@@ -54,7 +65,7 @@ def right(grid):
 def reachGoal(grid):
     leftVal = left(grid)
     rightVal = right(grid)
-    if abs(leftVal - rightVal) < (sum([leftVal, rightVal]) * 0.10):
+    if abs(leftVal - rightVal) <= (sum([leftVal, rightVal]) * 0.10):
         return True
     return False
 
@@ -345,7 +356,7 @@ def getAction(grid1, grid2):
             new_str = f"[{new_pos[0]:02d}, {new_pos[1]:02d}]"
             #return f'move "{moved_container}" from {old_str} to {new_str}'
             duration = manhattan(old_pos, new_pos)
-            return f'move "{moved_container}" from {old_str} to {new_str}, {duration} minutes'
+            return f'move {moved_container} from {old_str} to {new_str}, {duration} minute(s)'
     return "no single move detected"
 
 
