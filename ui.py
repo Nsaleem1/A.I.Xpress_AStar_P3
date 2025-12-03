@@ -249,7 +249,8 @@ class ShipUI:
         def save():
             comment = entry.get("1.0", tk.END).strip()
             if comment:
-                self.log(comment)
+                self.log(f"Comment: {comment}")
+                #self.log(comment)
                 # self.append_info(f"NOTE logged: {comment}")
             win.destroy()
 
