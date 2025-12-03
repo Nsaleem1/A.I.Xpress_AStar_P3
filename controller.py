@@ -135,21 +135,30 @@ class Controller:
         # First click: show preview only
             ui.highlight_move(curr_state, next_state)
             ui.previewed = True
+            ui.move_counter += 1
+            move_text = functions.getAction(curr_state.grid, next_state.grid)
+            formatted = f"{ui.move_counter} of {ui.total_moves}: {move_text}"
+            self.ui.append_info(formatted)
             return
         else:
             # Second click: perform move
             ui.draw_grid(next_state.grid)
             ui.current_index += 1
             ui.previewed = False
-        
+            
+            # ui.move_counter += 1
+            # move_text = functions.getAction(curr_state.grid, next_state.grid)
+            # formatted = f"{ui.move_counter} of {ui.total_moves}: {move_text}"
+            # ui.append_info(formatted)
+
             if ui.current_index == len(path) - 1:
                 # Last move has now been executed → show final grid
                 # ui.info.config(text="All moves have been completed.\nPress ENTER to finish.")
                 desktop = os.path.join(os.path.expanduser("~"), "Desktop")
-                out = os.path.join(desktop, f"{self.fileName[0:-4]}OUTBOUND.txt")
+                out = os.path.join(desktop, f"{self.fileName[0:-4]}.txt")
                 functions.updateManifest(self.path[-1].grid, out)
-                self.ui.info.config(text = f"Done!!\n" 
-                                    f"An updated manifest has been written to the desktop as\n"
+                self.ui.append_info(f"\nDone!!\n" 
+                                    f"An updated manifest has been written to the desktop as "
                                     f"{self.fileName[0:-4]}OUTBOUND.txt\n"
                                     f"Email it to the captain.\n"
                                     f"Hit ENTER when done.")
