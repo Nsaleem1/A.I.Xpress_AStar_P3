@@ -1,5 +1,4 @@
 import math
-import matplotlib.pyplot as plt
 import random
 import copy
 from collections import deque
@@ -351,9 +350,12 @@ def getAction(grid1, grid2):
             if name1 == "UNUSED" and name2 != "UNUSED":
                 new_pos = (r, c)
 
+    # if moved_container and old_pos and new_pos:
+    #     return f'move "{moved_container}" from {old_pos} to {new_pos}'
     if moved_container and old_pos and new_pos:
-        return f'move "{moved_container}" from {old_pos} to {new_pos}'
-
+            old_str = f"[{old_pos[0]:02d}, {old_pos[1]:02d}]"
+            new_str = f"[{new_pos[0]:02d}, {new_pos[1]:02d}]"
+            return f'move "{moved_container}" from {old_str} to {new_str}'
     return "no single move detected"
 
 

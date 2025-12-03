@@ -1,6 +1,6 @@
 import math
 import random
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import os
 from datetime import datetime, timedelta
 import functions
@@ -11,10 +11,11 @@ from dataclasses import dataclass
 
 # container class, each cont has a loc, weight, and contents section
 class Container:
-    def __init__(self, location, weight, contents):
+    def __init__(self, location, weight, contents, coord=None):
         self.location = location
         self.weight = weight
         self.contents = contents
+        self.coord = coord
 
 # read file
 # with open(manifestName, "r") as text:

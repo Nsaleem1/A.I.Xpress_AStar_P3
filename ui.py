@@ -1,26 +1,32 @@
 # ui.py
 import tkinter as tk
+import functions
 
 CELL = 50
 ROWS = 8
 COLS = 12
+PARK = (9, 1)
 
 class ShipUI:
     def __init__(self, root, controller):
         self.root = root
         self.controller = controller
-
+        ##
+        self.current_index = 0
+        self.phase = "preview"
+        self.previewed = False
+        ##
         root.title("Ship Balancer")
 
         self.canvas = tk.Canvas(
             root,
             width=COLS * CELL,
-            height=ROWS * CELL,
+            height=(ROWS + 1) * CELL,
             bg="white"
         )
         self.canvas.pack(pady=15)
 
-        self.info = tk.Label(root, text="Load a manifest.", font=("Arial", 14))
+        self.info = tk.Label(root, text="Enter a manifest.", font=("Arial", 14))
         self.info.pack()
 
         btn_frame = tk.Frame(root)
@@ -29,18 +35,25 @@ class ShipUI:
         tk.Button(btn_frame, text="Load Manifest",
                   command=self.controller.load_manifest_file).grid(row=0, column=0, padx=20)
 
-        self.next_btn = tk.Button(btn_frame, text="Next Move",
+        self.next_btn = tk.Button(btn_frame, text="Enter",
                                   state="disabled",
                                   command=self.controller.next_move)
         self.next_btn.grid(row=0, column=1, padx=20)
 
     def load_path(self, path):
         self.path = path
-        self.info.config(text=f"Loaded – {len(path)-1} moves.")
+        #
+        self.current_index = 0
+        self.phase = "preview"
+        path[0].is_first = True
+        path[-1].is_last = True
+        self.info.config(text=f"A solution has been found! It will take\n"
+                         f"{len(path)-1} move(s) and {path[-1].time} minute(s)\n"
+                         f"Hit ENTER to begin")
         self.next_btn.config(state="normal")
         self.draw_grid(path[0].grid)
 
-    def draw_grid(self, grid):
+    def draw_grid(self, grid, source=None, target=None):
         self.canvas.delete("all")
 
         for r in range(1, ROWS+1):
@@ -50,29 +63,107 @@ class ShipUI:
 
                 # CORRECT ORIENTATION FOR YOUR GRID:
                 x0 = (c - 1) * CELL
-                y0 = (ROWS - r) * CELL    # row 1 bottom, row 8 top
+                y0 = (ROWS - r + 1) * CELL    # row 1 bottom, row 8 top
 
                 x1 = x0 + CELL
                 y1 = y0 + CELL
 
+                if c <= COLS // 2:
+                    border = "black"
+                else:
+                    border = "blue"
+
                 # Color
                 if contents == "NAN":
-                    color = "black"
+                    fill = "black"
                 elif weight == 0:
-                    color = "white"
+                    fill = "white"
                 else:
-                    color = "green"
+                    fill = "green"
+
+                if source == (r, c):
+                    fill = "orange"
+                elif target == (r, c):
+                    fill = "red"
 
                 self.canvas.create_rectangle(x0, y0, x1, y1,
-                                             fill=color,
-                                             outline="gray15")
+                                             fill=fill,
+                                             outline=border,
+                                             )
 
                 if weight > 0:
                     self.canvas.create_text((x0 + CELL/2),
                                             (y0 + CELL/2),
                                             text=str(weight),
                                             font=("Arial", 12, "bold"))
+        park_r, park_c = PARK
+        x0 = (park_c - 1) * CELL
+        #y0 = ROWS * CELL       # directly above row 8
+        y0 = 0
+        x1 = x0 + CELL
+        #y1 = y0 + CELL
+        y1 = CELL
+
+        self.canvas.create_rectangle(
+            x0, y0, x1, y1,
+            fill="grey",
+            outline="grey",
+            width=1
+        )
+
+        self.canvas.create_text(
+            (x0 + CELL/2),
+            (y0 + CELL/2),
+            text="Park",
+            font=("Arial", 10, "bold")
+        )
+
+        # Highlight PARK if it's source/target
+        if source == PARK:
+            self.canvas.create_rectangle(x0, y0, x1, y1, fill="orange", outline="black")
+        elif target == PARK:
+            self.canvas.create_rectangle(x0, y0, x1, y1, fill="red", outline="black")
+
+    def highlight_move(self, curr_state, next_state, source_override = None, target_override = None):
+        """Find source and target for next move and redraw grid with colors."""
+        # source = target = None
+        for r in range(1, ROWS+1):
+            for c in range(1, COLS+1):
+                w1, _ = curr_state.grid[r][c]
+                w2, _ = next_state.grid[r][c]
+
+                if w1 != 0 and w2 == 0:
+                    source = (r, c)
+                elif w1 == 0 and w2 != 0:
+                    target = (r, c)
+        
+    #     if getattr(curr_state, "is_first", False) and source is None:
+    #         source = PARK
+
+    # # LAST MOVE ends at park
+    #     if getattr(next_state, "is_last", False) and target is None:
+    #         target = PARK
+        
+        if source_override:
+            source = source_override
+        if target_override:
+            target = target_override
+        move_text = functions.getAction(curr_state.grid, next_state.grid)
+        self.info.config(text=f"Next move: {move_text}")
+        self.draw_grid(curr_state.grid, source, target)
+
 
     def finish(self):
         self.next_btn.config(state="disabled")
-        self.info.config(text="Finished – manifest saved.")
+        self.clearGrid()  # <-- you should implement this in your UI class
+
+        self.info.config(text="Enter a manifest.")
+        self.path = []
+        self.current_index = 0
+        self.foundGoal = None
+        self.initialState = None
+        self.manifest_name = None
+
+    def clearGrid(self):
+        self.canvas.delete("all")
+
