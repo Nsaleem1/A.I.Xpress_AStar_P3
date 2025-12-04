@@ -67,14 +67,15 @@ def reachGoal(grid):
     return False
 
 def newState(oldRow, oldCol, newRow, newCol, currState):
-    grid = copy.deepcopy(currState.grid)   # ← FIXED
+    grid = copy.deepcopy(currState.grid)   
 
     value, content = grid[oldRow][oldCol]
-
+    time = manhattan((oldRow, oldCol), (newRow, newCol), grid) + currState.time
+    
     grid[oldRow][oldCol] = (0, "UNUSED")
     grid[newRow][newCol] = (value, content)
 
-    time = manhattan((oldRow, oldCol), (newRow, newCol)) + currState.time
+    
 
     return state(grid, left(grid), right(grid), reachGoal(grid), time, currState)
 
@@ -246,10 +247,46 @@ def updateManifest(goalGrid, manifestName):
                 contWeight = str(container[0]).zfill(5)
                 row = str(i).zfill(2)
                 col = str(j).zfill(2)
-                f.write(f"[{row},{col}], {{{contWeight}}}, {container[1]}\n")
+                f.write(f"[{row},{col}], {{{contWeight}}}, {container[1]}\n") 
 
-def manhattan(loc1, loc2):
-    return abs(loc1[0] - loc2[0]) + abs(loc1[1] - loc2[1])
+def availablePos(grid, r, c):
+    return grid[r][c][1] == "UNUSED" 
+
+def manhattan(loc1, loc2, grid):
+    r,c = loc1
+    tr, tc = loc2
+    distance = 0
+
+    if loc1 == (8,1) or loc2 == (8,1):
+        return abs(loc1[0] - loc2[0]) + abs(loc1[1] - loc2[1])
+    
+    # horizontal alignment
+    while c != tc:
+
+        #go right
+        if tc > c:
+            if availablePos(grid, r, c+1):
+                c += 1
+            #go up if not
+            else:
+                r += 1
+        
+        #go left
+        elif tc < c:
+            if availablePos(grid, r, c-1):
+                c -= 1
+            #go up if not
+            else:
+                r += 1
+
+        distance += 1
+    
+    #vertical alignment
+    while r != tr:
+        r -= 1
+        distance += 1
+    
+    return distance
 
 def computeHeuristic(currState):
     time = currState.time 
@@ -316,7 +353,7 @@ def getAction(grid1, grid2):
     if moved_container and old_pos and new_pos:
             old_str = f"[{old_pos[0]:02d}, {old_pos[1]:02d}]"
             new_str = f"[{new_pos[0]:02d}, {new_pos[1]:02d}]"
-            duration = manhattan(old_pos, new_pos)
+            duration = manhattan(old_pos, new_pos, grid1)
             return f'Move {moved_container} from {old_str} to {new_str}, {duration} minute(s)'
     return "no single move detected"
 
@@ -343,12 +380,12 @@ def getMovedContainer(grid1, grid2):
     
 def craneToGrid(initialGrid, secondGrid):
     movedContainer, pos, _ = getMovedContainer(initialGrid, secondGrid)
-    time = manhattan((8,1), pos)
+    time = manhattan((8,1), pos, initialGrid)
     return time, movedContainer, pos
 
 def gridToCrane(beforeLastGrid, lastGrid):
     movedContainer, _, pos = getMovedContainer(beforeLastGrid, lastGrid)
-    time = manhattan((8,1), pos)
+    time = manhattan((8,1), pos, lastGrid)
     return time, movedContainer, pos
 
 def secondStates(goalState):
