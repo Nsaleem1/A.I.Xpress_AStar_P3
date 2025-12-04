@@ -18,6 +18,7 @@ class ShipUI:
         # list of all log lines
         self.log_entries = []                            
         root.protocol("WM_DELETE_WINDOW", self.on_close)
+        self.log("Program was started.")
 
         self.canvas = tk.Canvas(
             root,
@@ -209,7 +210,7 @@ class ShipUI:
         dt = self.session_start
         manifest = self.controller.manifest_name[0:-4]
         fname = f"{manifest}_{dt.strftime('%m_%d_%Y_%I%M')}.txt"
-        self.log(f"Finished a Cycle. Manifest {fname} was written to desktop.")
+        # self.log(f"Finished a Cycle. Manifest {fname} was written to desktop.")
     
 
         desktop = os.path.join(os.path.expanduser("~"), "Desktop")
