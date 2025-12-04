@@ -45,9 +45,12 @@ class Controller:
         
         #count how many containers 
         count = 0
+        weightCount = 0
         for container in containers:
-            if container.weight > 0:
+            if (container.contents != "NAN" and container.contents != "UNUSED"):
                 count = count + 1
+            if container.weight > 0:
+                weightCount = weightCount + 1
 
         # create initial state
         grid = functions.shipGrid(containers)
@@ -57,16 +60,48 @@ class Controller:
         self.initialState = functions.state(grid, left, right, goal, 0, parent=None)
 
         # write to log file  
-        self.ui.log(f"Manifest {self.manifest_name} is opened, there are {count} containers on the ship.")
-        self.ui.append_info(f"{self.manifest_name[0:-4]} has {count} containers\n"
+        self.ui.log(f"Manifest {self.manifest_name} is opened, there are {count} container(s) on the ship.")
+        self.ui.append_info(f"{self.manifest_name[0:-4]} has {count} container(s)\n"
                     "Computing a Solution...\n")
         self.ui.root.update_idletasks()
 
         # solving using AStar
-        if not functions.edgeCase(self.initialState, containers):
+        if not functions.edgeCase(self.initialState, containers) and weightCount != 1:
             self.foundGoal = functions.AStar(self.initialState)
         else:
             self.foundGoal = self.initialState
+            self.ui.log("Zero moves. Ship is already balanced.")
+            self.ui.append_info("Done! Ship is already balanced!")
+
+            # Draw the empty grid
+            self.ui.draw_grid(self.initialState.grid)
+
+            # Write outbound manifest automatically
+            desktop = os.path.join(os.path.expanduser("~"), "Desktop")
+            out = os.path.join(desktop, f"{self.manifest_name[0:-4]}.txt")
+            functions.updateManifest(self.initialState.grid, out)
+
+            # Log writing the manifest
+            self.ui.log(f"Finished a Cycle. Manifest {self.manifest_name[0:-4]}OUTBOUND.txt was written to desktop.")
+
+            # Tell the user
+            self.ui.append_info(
+                f"\nAn updated manifest has been written to the desktop as\n"
+                f"{self.manifest_name[0:-4]}OUTBOUND.txt\n"
+                f"Email it to the captain.\n"
+                f"Hit ENTER when done."
+            )
+
+            self.path = [self.initialState]  
+            self.ui.path = self.path
+            self.ui.current_index = 0
+            self.ui.total_moves = 0
+            self.ui.move_counter = 0
+
+            # Allow the user to press ENTER to return to default screen
+            self.ui.next_btn.config(state="normal")
+            
+            return
 
         # build path 
         self.path = []
@@ -128,7 +163,7 @@ class Controller:
                 ui.highlight_move(curr_state, PARK, pos)
                 ui.previewed = True
                 ui.move_counter += 1
-                move_text = f"Move {moveContainer} from [{pos[0]:02d}, {pos[1]:02d}] to PARK, {time} minute(s)"
+                move_text = f"Move Crane from [{pos[0]:02d}, {pos[1]:02d}] to PARK, {time} minute(s)"
                 formatted = f"{ui.move_counter} of {ui.total_moves}: {move_text}"
                 self.ui.append_info(formatted)
                 self.ui.log(formatted)
