@@ -21,7 +21,7 @@ class Controller:
     def load_manifest_file(self):
 
         # write to log
-        self.ui.log("Program was started.")
+        # self.ui.log("Program was started.")
         
         file_path = filedialog.askopenfilename(
             title="Select Manifest",
@@ -156,6 +156,7 @@ class Controller:
                 desktop = os.path.join(os.path.expanduser("~"), "Desktop")
                 out = os.path.join(desktop, f"{self.manifest_name[0:-4]}.txt")
                 functions.updateManifest(self.path[-1].grid, out)
+                self.ui.log(f"Finished a Cycle. Manifest {f"{self.manifest_name[0:-4]}OUTBOUND.txt"} was written to desktop.")
                 self.ui.append_info(f"\nDone!!\n" 
                                     f"An updated manifest has been written to the desktop as\n"
                                     f"{self.manifest_name[0:-4]}OUTBOUND.txt\n"
