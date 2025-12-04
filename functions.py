@@ -1,9 +1,7 @@
-#import matplotlib.pyplot as plt
 import copy
 from collections import deque
 import heapq
 from itertools import count
-## log stuff 
 from datetime import datetime
 
 def timestamp_now():
@@ -13,7 +11,6 @@ def timestamp_string(dt=None):
     if dt is None:
         dt = datetime.now()
     return dt.strftime("%m %d %Y: %H:%M")
-##
 
 # container class, each cont has a loc, weight, and contents section
 class Container:
@@ -254,37 +251,6 @@ def updateManifest(goalGrid, manifestName):
 def manhattan(loc1, loc2):
     return abs(loc1[0] - loc2[0]) + abs(loc1[1] - loc2[1])
 
-def printGridWithBalance(grid, title="Ship Grid"):
-    """
-    Prints the ship grid with bottom-left as (1,1) and shows left/right weights.
-    """
-    print(f"\n=== {title} ===")
-
-    # Print column numbers
-    col_nums = ["{:>4}".format(j) for j in range(1, 13)]
-    print("     " + " ".join(col_nums))  # extra space for row numbers
-
-    # Print the grid from bottom row to top row
-    for i in range(8, 0, -1):  # row 8 at top, row 1 at bottom
-        row_display = []
-        for j in range(1, 13):
-            weight, contents = grid[i][j]
-            if contents == "NAN":  # blocked spot
-                row_display.append("####")
-            elif weight == 0:      # empty spot
-                row_display.append("----")
-            else:                  # container with weight
-                row_display.append(str(weight).zfill(4))
-        print("{:>3} | ".format(i) + " | ".join(row_display))
-    
-    # Calculate left/right weights
-    left_weight = sum(grid[i][j][0] for i in range(1,9) for j in range(1, 13//2 + 1) if grid[i][j][1] != "NAN")
-    right_weight = sum(grid[i][j][0] for i in range(1,9) for j in range(13//2 + 1, 13) if grid[i][j][1] != "NAN")
-    
-    print("\nLeft Side Weight : ", left_weight)
-    print("Right Side Weight: ", right_weight)
-    print("Difference      : ", abs(left_weight - right_weight))
-    print("="*70 + "\n")
 def computeHeuristic(currState):
     time = currState.time 
     absDiff = abs(left(currState.grid) - right(currState.grid))
@@ -298,7 +264,7 @@ def backtrack(currState, start):
     path.append(start)
     path.reverse()
 
-    with open("Moves.txt", "w") as f:
+    with open("Moves.txt", "a") as f:
         #write down the moves
         for i in range(len(path) - 1):
             grid1 = path[i].grid
@@ -307,23 +273,21 @@ def backtrack(currState, start):
             f.write(f"{gridAction}\n")
 
         for state in path:
-            f.write(print_grid(state.grid) + "\n\n")  # write the grid string to file
+            f.write(printGrid(state.grid) + "\n\n") 
 
+def printGrid(grid):
 
-def print_grid(grid):
-    """
-    grid: 9x13 list of tuples (weight, contents)
-    Prints the grid with weights only, row 1 at the bottom.
-    """
     rows = len(grid)
     cols = len(grid[0])
 
     lines = []
-    for i in range(rows-1, -1, -1):  # start from bottom row
+    # start from bottom row
+    for i in range(rows-1, -1, -1):  
         row_str = ""
         for j in range(cols):
-            weight = grid[i][j][0]  # get the weight
-            row_str += f"{weight:3} "  # pad for alignment
+            weight = grid[i][j][0]  
+            # padding
+            row_str += f"{weight:3} "  
         lines.append(row_str)
     
     # Combine all rows into a single string
@@ -349,19 +313,62 @@ def getAction(grid1, grid2):
             if name1 == "UNUSED" and name2 != "UNUSED":
                 new_pos = (r, c)
 
-    # if moved_container and old_pos and new_pos:
-    #     return f'move "{moved_container}" from {old_pos} to {new_pos}'
     if moved_container and old_pos and new_pos:
             old_str = f"[{old_pos[0]:02d}, {old_pos[1]:02d}]"
             new_str = f"[{new_pos[0]:02d}, {new_pos[1]:02d}]"
-            #return f'move "{moved_container}" from {old_str} to {new_str}'
             duration = manhattan(old_pos, new_pos)
-            return f'move {moved_container} from {old_str} to {new_str}, {duration} minute(s)'
+            return f'Move {moved_container} from {old_str} to {new_str}, {duration} minute(s)'
     return "no single move detected"
 
+def getMovedContainer(grid1, grid2):
+    old_pos = None
+    new_pos = None
+    moved_container = None
 
+    for r in range(9):
+        for c in range(13):
+            w1, name1 = grid1[r][c]
+            w2, name2 = grid2[r][c]
 
+            # Container disappeared → old position
+            if name1 != "UNUSED" and name2 == "UNUSED":
+                old_pos = (r, c)
+                moved_container = name1
 
+            # Container appeared → new position
+            if name1 == "UNUSED" and name2 != "UNUSED":
+                new_pos = (r, c)
+
+    return moved_container, old_pos, new_pos
+    
+def craneToGrid(initialGrid, secondGrid):
+    movedContainer, pos, _ = getMovedContainer(initialGrid, secondGrid)
+    time = manhattan((8,1), pos)
+    return time, movedContainer, pos
+
+def gridToCrane(beforeLastGrid, lastGrid):
+    movedContainer, _, pos = getMovedContainer(beforeLastGrid, lastGrid)
+    time = manhattan((8,1), pos)
+    return time, movedContainer, pos
+
+def secondStates(goalState):
+    secondToLastState = goalState.parent
+
+    # find the second state
+    prevState = goalState.parent
+    currState = goalState
+    while prevState.parent is not None:
+        currState = currState.parent
+        prevState = prevState.parent
+
+    return currState, secondToLastState, prevState
+
+def totalTime(goalState):
+    second, beforeLast, start = secondStates(goalState)
+    craneGrid, _, _ = craneToGrid(start.grid, second.grid)
+    gridCrane, _, _ = gridToCrane(beforeLast.grid, goalState.grid)
+    total = goalState.time + craneGrid + gridCrane
+    return total
 
 
 
