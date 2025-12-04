@@ -35,11 +35,18 @@ initialState = functions.state(grid, left, right, goal, 0, parent=None)
 foundGoal = initialState
 isEdge = functions.edgeCase(initialState , containers)
 if not isEdge:
+
+    #BFS
     foundGoal = functions.BFS(initialState)
-    print(f"\nBFS total time was {foundGoal.time} minutes\n")
+    totalTimeWCrane = functions.totalTime(foundGoal)
+    print(f"\nBFS total time was {totalTimeWCrane} minutes\n")
+    functions.backtrack(foundGoal, initialState)
+
+    #ASTAR
     foundGoal = functions.AStar(initialState)
     functions.backtrack(foundGoal, initialState)
-    print(f"\nAstar total time was {foundGoal.time} minutes\n")
+    totalTimeWCrane = functions.totalTime(foundGoal)
+    print(f"\nAstar total time was {totalTimeWCrane} minutes\n")
     print("Updated Manifest is for Astar and the Moves.txt file\n")
     functions.updateManifest(foundGoal.grid, manifestName)
 else:
