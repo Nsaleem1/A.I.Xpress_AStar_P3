@@ -30,6 +30,9 @@ class ShipUI:
         self.info = tk.Text(root, width=67, height=8, font=("Arial", 12), state="disabled")
         self.info.pack(padx=10, pady=(10,5))
 
+        # begin program with manifest
+        self.append_info("Enter a manifest.")
+
         btn_frame = tk.Frame(root)
         btn_frame.pack(pady=10)
 
@@ -88,7 +91,7 @@ class ShipUI:
                 # Color
                 if contents == "NAN":
                     fill = "black"
-                elif weight == 0:
+                elif (contents == "UNUSED"):
                     fill = "white"
                 else:
                     fill = "yellow"
@@ -106,7 +109,7 @@ class ShipUI:
                 text=str(contents)
                 if len(text) > 6:
                     text = text[:4] + "..."
-                if weight > 0:
+                if weight > 0 or (contents != "NAN" and contents != "UNUSED"):
                     self.canvas.create_text((x0 + CELL/2),
                                             (y0 + CELL/2),
                                             text=text,
