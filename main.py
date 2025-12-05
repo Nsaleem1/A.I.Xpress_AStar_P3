@@ -36,19 +36,27 @@ foundGoal = initialState
 isEdge = functions.edgeCase(initialState , containers)
 if not isEdge:
 
-    #BFS
-    foundGoal = functions.BFS(initialState)
-    totalTimeWCrane = functions.totalTime(foundGoal)
-    print(f"\nBFS total time was {totalTimeWCrane} minutes\n")
-    functions.backtrack(foundGoal, initialState)
+    #run all 3 algorithms 
+    BFSGoal = functions.BFS(initialState)
+    BFStime = functions.totalTime(BFSGoal)
+    print(f"\nBFS total time was {BFStime} minutes\n")
+    AStarGoal = functions.AStar(initialState)
+    AStartime = functions.totalTime(AStarGoal)
+    print(f"\nAStar total time was {AStartime} minutes\n")
+    AStar2Goal = functions.AStar2(initialState)
+    AStar2Time = functions.totalTime(AStar2Goal)
+    print(f"\nAStar2 total time was {AStar2Time} minutes\n")
 
-    #ASTAR
-    foundGoal = functions.AStar(initialState)
-    functions.backtrack(foundGoal, initialState)
-    totalTimeWCrane = functions.totalTime(foundGoal)
-    print(f"\nAstar total time was {totalTimeWCrane} minutes\n")
-    print("Updated Manifest is for Astar and the Moves.txt file\n")
-    functions.updateManifest(foundGoal.grid, manifestName)
+    results = [
+    ("BFS", BFSGoal, BFStime),
+    ("AStar", AStarGoal, AStartime),
+    ("AStar2", AStar2Goal, AStar2Time)
+    ]
+
+    bestName, bestGoal, bestTime = min(results, key=lambda x: x[2])
+
+    print(f"\nBest Algorithm: {bestName} with {bestTime} minutes, manifest updated with this algorithm\n")    
+    functions.updateManifest(bestGoal.grid, manifestName)
 else:
     print("\n This case was one of the edge cases, no need for BFS/Astar. Manifest is same.\n")
 

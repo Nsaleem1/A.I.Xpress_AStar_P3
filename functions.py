@@ -79,7 +79,7 @@ def newState(oldRow, oldCol, newRow, newCol, currState):
 
     return state(grid, left(grid), right(grid), reachGoal(grid), time, currState)
 
-# assume that 0 means spot is empty
+# need to go to UNUSED spot
 # make sure not to put anything in the 0 row/column
 def computeMoves(state):
     grid = state.grid
@@ -96,21 +96,23 @@ def computeMoves(state):
             #so we dont check like the spot above us to move to since we cant move there
             checkedCol.append(j)
 
-            # this container is on the top since above it is 0, and container itself cant be 0 or NAN
-            # need two cases bc if I m at like row 8 then above is out of the grid
+            # this container is on the top since above it is UNUSED, and container itself cant be  NAN
+            # need the i == 8 check since i + 1 be out of bounds for top row
 
-            if (i == 8 and grid[i][j][0] != 0 and grid[i][j][1] != "NAN"):    
+            # very top row
+            if (i == 8 and grid[i][j][1] != "UNUSED" and grid[i][j][1] != "NAN"):    
                 # find an empty spot
                 for row in range (1,9):
                     for col in range (1,13):
-                        if (grid[row][col][0] == 0 and grid[row][col][1] != "NAN" and not (col in checkedCol)):
+                        if (grid[row][col][1] == "UNUSED" and grid[row][col][1] != "NAN" and not (col in checkedCol)):
                             nextStates.append(newState(i, j, row, col, copy.deepcopy(state)))
                             checkedCol.append(col)
-            
-            elif ((i < 8) and (grid[i+1][j][0] == 0) and (grid[i][j][0] != 0) and (grid[i][j][1] != "NAN")):
+
+            # moving only containers with nothing above
+            elif ((i < 8) and (grid[i+1][j][1] == "UNUSED") and (grid[i][j][1] != "UNUSED") and (grid[i][j][1] != "NAN")):
                 for row in range (1,9):
                     for col in range (1,13):
-                        if (grid[row][col][0] == 0 and grid[row][col][1] != "NAN" and not (col in checkedCol)):
+                        if (grid[row][col][1] == "UNUSED" and grid[row][col][1] != "NAN" and not (col in checkedCol)):
                             nextStates.append(newState(i, j, row, col, copy.deepcopy(state)))
                             checkedCol.append(col)
 
@@ -226,6 +228,71 @@ def AStar(start):
                 cost_so_far[neighbor_tuple] = newCost
                 neighbor.parent = currState
                 fValue = newCost + computeHeuristic(neighbor)
+                heapq.heappush(unvisited, (fValue, next(counter), neighbor))
+        
+        # Track most balanced option. If weights are equal, prioritize the cheaper path (lower time).
+        weightVal = abs(left(currState.grid) - right(currState.grid))
+        if weightVal < minWeight or (weightVal == minWeight and currState.time < minState.time):
+            minWeight = weightVal
+            minState = currState
+
+    return minState
+
+def computeHeuristic2(neighbor):
+    grid = neighbor.grid
+    maxWeight = 0
+    value = 0
+    tr = 1
+    tc = 1
+    
+    # state that frees the heaviest container is prioritized
+     
+    #find heaviest container 
+    for r in range(1,9):
+        for c in range(1, 13):
+            weight , _ = grid[r][c]
+            if weight > maxWeight:
+                maxWeight = weight
+                tr = r
+                tc = c
+    # the more containers on the top of the heaviest is bad
+    for i in range (tr+1,9):
+        if grid[i][tc][1] != "UNUSED":
+            value += 1
+    
+    return value
+                    
+
+# heuristic is trying to move the heaviest container 
+def AStar2(start):
+    counter = count()
+    unvisited = []
+    minWeight = float('inf')
+    heapq.heappush(unvisited, (computeHeuristic(start), next(counter), start))
+
+    grid_to_tuple = lambda g: tuple(tuple(row) for row in g)
+    #stores best so far cost of each grid 
+    cost_so_far = {grid_to_tuple(start.grid): start.time}
+
+    while unvisited:
+        _, _, currState = heapq.heappop(unvisited)
+
+        # Goal check
+        if reachGoal(currState.grid):
+            return currState
+
+        # Generate neighbors
+        nextMoves = computeMoves(currState)  
+
+        for neighbor in nextMoves:
+            neighbor_tuple = grid_to_tuple(neighbor.grid)
+            newCost = neighbor.time  
+
+            # Add neighbor if not visited or if this path is faster (lower time)
+            if neighbor_tuple not in cost_so_far or newCost < cost_so_far[neighbor_tuple]:
+                cost_so_far[neighbor_tuple] = newCost
+                neighbor.parent = currState
+                fValue = newCost + computeHeuristic2(neighbor)
                 heapq.heappush(unvisited, (fValue, next(counter), neighbor))
         
         # Track most balanced option. If weights are equal, prioritize the cheaper path (lower time).
