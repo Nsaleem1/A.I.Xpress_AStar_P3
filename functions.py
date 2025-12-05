@@ -304,6 +304,83 @@ def AStar2(start):
     return minState
 
 
+def availableCol(colNum, grid):
+    for r in range(1,9):
+        if grid[r][colNum][1] == "UNUSED":
+            return True
+    return False
+
+def computeHeuristic3(neighbor):
+    hn = 0
+    grid = neighbor.grid
+    totalWeight = left(grid) + right(grid)
+    balanceMass = (totalWeight)//2
+    deficit = balanceMass - left(grid)
+    sortedRight = []
+    freeCol = 7
+    
+
+    for r in range(1,9):
+        for c in range(13 // 2 + 1, 13):
+            if grid[r][c][1] != "NAN" and grid[r][c][1] != "UNUSED":
+                sortedRight.append((c,grid[r][c][0]))
+    
+    sortedRight.sort(key=lambda x: x[1], reverse=True)
+    moveContainer = []
+
+    for container in sortedRight:
+        if container[1] <= deficit:
+            deficit = deficit - container[1]
+            moveContainer.append(container[0])
+        if deficit <= 0:
+            break
+
+    for move in moveContainer:
+        if (availableCol(freeCol, grid)):
+            hn = hn + (freeCol - move)
+        else:
+            freeCol += 1
+    return hn
+
+def AStar3(start):
+    counter = count()
+    unvisited = []
+    minWeight = float('inf')
+    heapq.heappush(unvisited, (computeHeuristic(start), next(counter), start))
+
+    grid_to_tuple = lambda g: tuple(tuple(row) for row in g)
+    #stores best so far cost of each grid 
+    cost_so_far = {grid_to_tuple(start.grid): start.time}
+
+    while unvisited:
+        _, _, currState = heapq.heappop(unvisited)
+        
+        # Goal check
+        if reachGoal(currState.grid):
+            return currState
+
+        # Generate neighbors
+        nextMoves = computeMoves(currState)  
+
+        for neighbor in nextMoves:
+            neighbor_tuple = grid_to_tuple(neighbor.grid)
+            newCost = neighbor.time  
+
+            # Add neighbor if not visited or if this path is faster (lower time)
+            if neighbor_tuple not in cost_so_far or newCost < cost_so_far[neighbor_tuple]:
+                cost_so_far[neighbor_tuple] = newCost
+                neighbor.parent = currState
+                fValue = newCost + computeHeuristic3(neighbor)
+                heapq.heappush(unvisited, (fValue, next(counter), neighbor))
+        
+        # Track most balanced option. If weights are equal, prioritize the cheaper path (lower time).
+        weightVal = abs(left(currState.grid) - right(currState.grid))
+        if weightVal < minWeight or (weightVal == minWeight and currState.time < minState.time):
+            minWeight = weightVal
+            minState = currState
+
+    return minState
+
 def updateManifest(goalGrid, manifestName):
     name, ext = manifestName.rsplit(".", 1)
     newFile = name + "OUTBOUND." + ext

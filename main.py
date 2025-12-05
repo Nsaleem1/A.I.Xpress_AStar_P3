@@ -46,11 +46,15 @@ if not isEdge:
     AStar2Goal = functions.AStar2(initialState)
     AStar2Time = functions.totalTime(AStar2Goal)
     print(f"\nAStar2 total time was {AStar2Time} minutes\n")
+    AStar3Goal = functions.AStar3(initialState)
+    AStar3Time = functions.totalTime(AStar3Goal)
+    print(f"\nAStar3 total time was {AStar3Time} minutes\n")
 
     results = [
     ("BFS", BFSGoal, BFStime),
     ("AStar", AStarGoal, AStartime),
-    ("AStar2", AStar2Goal, AStar2Time)
+    ("AStar2", AStar2Goal, AStar2Time),
+    ("AStar3", AStar3Goal, AStar3Time)
     ]
 
     bestName, bestGoal, bestTime = min(results, key=lambda x: x[2])

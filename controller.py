@@ -67,28 +67,7 @@ class Controller:
 
         # solving using the best function
         if not functions.edgeCase(self.initialState, containers) and weightCount != 1:
-
-            self.AStarGoal = functions.AStar(self.initialState)
-            self.AStar2Goal = functions.AStar2(self.initialState)
-            self.BFSGoal = functions.BFS(self.initialState)
-           
-            # compute times
-            AStarTime = functions.totalTime(self.AStarGoal)
-            AStar2Time = functions.totalTime(self.AStar2Goal)
-            BFSTime = functions.totalTime(self.BFSGoal)
-
-            # choose best goal
-            results = [
-                ("BFS", self.BFSGoal, BFSTime),
-                ("AStar", self.AStarGoal, AStarTime),
-                ("AStar2", self.AStar2Goal, AStar2Time)
-            ]
-
-            bestName, bestGoal, bestTime = min(results, key=lambda x: x[2])
-
-            # save the best one
-            self.foundGoal = bestGoal
-            
+            self.foundGoal = functions.AStar3(self.initialState)
         else:
             self.foundGoal = self.initialState
             self.ui.log("Zero moves. Ship is already balanced.")
