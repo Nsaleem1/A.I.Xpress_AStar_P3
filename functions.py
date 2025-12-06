@@ -315,20 +315,20 @@ def computeHeuristic3(neighbor):
     grid = neighbor.grid
     totalWeight = left(grid) + right(grid)
     balanceMass = (totalWeight)//2
-    deficit = balanceMass - left(grid)
-    sortedRight = []
+    deficit = abs(balanceMass - left(grid))
+    sortedLeft = []
     freeCol = 7
     
 
     for r in range(1,9):
-        for c in range(13 // 2 + 1, 13):
+        for c in range(1, 13 // 2 + 1):
             if grid[r][c][1] != "NAN" and grid[r][c][1] != "UNUSED":
-                sortedRight.append((c,grid[r][c][0]))
+                sortedLeft.append((c,grid[r][c][0]))
     
-    sortedRight.sort(key=lambda x: x[1], reverse=True)
+    sortedLeft.sort(key=lambda x: x[1], reverse=True)
     moveContainer = []
 
-    for container in sortedRight:
+    for container in sortedLeft:
         if container[1] <= deficit:
             deficit = deficit - container[1]
             moveContainer.append(container[0])
@@ -340,6 +340,7 @@ def computeHeuristic3(neighbor):
             hn = hn + (freeCol - move)
         else:
             freeCol += 1
+    print(hn)
     return hn
 
 def AStar3(start):
