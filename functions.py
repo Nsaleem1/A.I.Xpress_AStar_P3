@@ -340,7 +340,6 @@ def computeHeuristic3(neighbor):
             hn = hn + (freeCol - move)
         else:
             freeCol += 1
-    print(hn)
     return hn
 
 def AStar3(start):
