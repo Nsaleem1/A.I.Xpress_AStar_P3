@@ -65,8 +65,20 @@ class Controller:
                     "Computing a Solution...\n")
         self.ui.root.update_idletasks()
 
+        leftCnt = 0
+        rightCnt = 0
+        for c in containers:
+            if c.weight != 0:
+                if c.location[1] <= 6:
+                    leftCnt += 1
+                else:
+                    rightCnt += 1
+
+        edge = (leftCnt == 1 and rightCnt == 1)
+   
+    
         # solving using the best function
-        if not functions.edgeCase(self.initialState, containers) and weightCount != 1:
+        if not functions.edgeCase(self.initialState, containers) and weightCount != 1 and edge == False:
             self.foundGoal = functions.AStar3(self.initialState)
         else:
             self.foundGoal = self.initialState
