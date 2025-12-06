@@ -27,7 +27,7 @@ class ShipUI:
             bg="white"
         )
         self.canvas.pack(pady=15)
-        self.info = tk.Text(root, width=67, height=8, font=("Arial", 12), state="disabled")
+        self.info = tk.Text(root, width=67, height=17, font=("Arial", 12), state="disabled")
         self.info.pack(padx=10, pady=(10,5))
 
         # begin program with manifest
