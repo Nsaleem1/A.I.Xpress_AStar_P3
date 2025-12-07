@@ -142,7 +142,7 @@ def edgeCase(initialState, containers):
     count = 0
 
      #one container on left
-    if (left(initialState.grid) == 0):
+    if (right(initialState.grid) == 0):
         for container in containers[0:48]:
             if (container.weight != 0):
                 count += 1
