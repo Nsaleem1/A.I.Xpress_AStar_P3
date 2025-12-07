@@ -317,32 +317,52 @@ def computeHeuristic3(neighbor):
     grid = neighbor.grid
     totalWeight = left(grid) + right(grid)
     balanceMass = (totalWeight)//2
-    deficit = abs(balanceMass - left(grid))
-    sortedLeft = []
-    freeCol = 7
-    
+    leftSide = False
 
-    for r in range(1,9):
-        for c in range(1, 13 // 2 + 1):
-            if grid[r][c][1] != "NAN" and grid[r][c][1] != "UNUSED":
-                sortedLeft.append((c,grid[r][c][0]))
+    #choosing what side to move
+    if left(grid) > right(grid):
+        deficit = abs(left(grid) - balanceMass)
+        leftSide = True
+        freeCol = 7
+    else:
+        deficit = abs(right(grid) - balanceMass)
+        freeCol = 6
     
-    sortedLeft.sort(key=lambda x: x[1], reverse=True)
+    sortedSide = []
+    
+    if leftSide:
+        for r in range(1,9):
+            for c in range(1, 13 // 2 + 1):
+                if grid[r][c][1] != "NAN" and grid[r][c][1] != "UNUSED":
+                    sortedSide.append((c,grid[r][c][0]))
+    else:
+         for r in range(1,9):
+            for c in range(13 // 2 + 1, 13):
+                if grid[r][c][1] != "NAN" and grid[r][c][1] != "UNUSED":
+                    sortedSide.append((c,grid[r][c][0]))       
+    
+    sortedSide.sort(key=lambda x: x[1], reverse=True)
     moveContainer = []
-
-    for container in sortedLeft:
+    
+    # seeing what containers to move
+    for container in sortedSide:
         if container[1] <= deficit:
             deficit = deficit - container[1]
             moveContainer.append(container[0])
         if deficit <= 0:
             break
-
+        
+    #calculating heuristic 
     for move in moveContainer:
-        if (availableCol(freeCol, grid)):
-            hn = hn + (freeCol - move)
+        if (not availableCol(freeCol, grid)):
+            if leftSide:
+                freeCol += 1
+            else:
+                freeCol -= 1
         else:
-            freeCol += 1
+            hn = hn + abs(freeCol - move)
     return hn
+
 
 def AStar3(start):
     counter = count()

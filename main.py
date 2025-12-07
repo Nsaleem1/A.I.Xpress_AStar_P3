@@ -1,4 +1,5 @@
 import functions
+import time 
 
 manifestName = input("Enter the manifest: ")
 containers = []
@@ -36,31 +37,28 @@ foundGoal = initialState
 isEdge = functions.edgeCase(initialState , containers)
 if not isEdge:
 
-    #run all 3 algorithms 
+    # BFS
+    start = time.time()
     BFSGoal = functions.BFS(initialState)
-    BFStime = functions.totalTime(BFSGoal)
-    print(f"\nBFS total time was {BFStime} minutes\n")
-    AStarGoal = functions.AStar(initialState)
-    AStartime = functions.totalTime(AStarGoal)
-    print(f"\nAStar total time was {AStartime} minutes\n")
-    AStar2Goal = functions.AStar2(initialState)
-    AStar2Time = functions.totalTime(AStar2Goal)
-    print(f"\nAStar2 total time was {AStar2Time} minutes\n")
+    end = time.time()
+    BFS_compute = end - start  
+    BFS_solution = functions.totalTime(BFSGoal)  
+
+    print("\n----- BFS Results -----")
+    print(f"BFS compute time: {BFS_compute:.5f} seconds")
+    print(f"BFS solution time: {BFS_solution} minutes\n")
+
+    # A*
+    start = time.time()
     AStar3Goal = functions.AStar3(initialState)
-    AStar3Time = functions.totalTime(AStar3Goal)
-    print(f"\nAStar3 total time was {AStar3Time} minutes\n")
+    end = time.time()
+    AStar3_compute = end - start
+    AStar3_solution = functions.totalTime(AStar3Goal)
 
-    results = [
-    ("BFS", BFSGoal, BFStime),
-    ("AStar", AStarGoal, AStartime),
-    ("AStar2", AStar2Goal, AStar2Time),
-    ("AStar3", AStar3Goal, AStar3Time)
-    ]
+    print("----- AStar3 Results -----")
+    print(f"AStar3 compute time: {AStar3_compute:.5f} seconds")
+    print(f"AStar3 solution time: {AStar3_solution} minutes\n")
 
-    bestName, bestGoal, bestTime = min(results, key=lambda x: x[2])
-
-    print(f"\nBest Algorithm: {bestName} with {bestTime} minutes, manifest updated with this algorithm\n")    
-    functions.updateManifest(bestGoal.grid, manifestName)
 else:
     print("\n This case was one of the edge cases, no need for BFS/Astar. Manifest is same.\n")
 
