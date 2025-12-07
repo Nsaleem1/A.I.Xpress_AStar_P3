@@ -2,7 +2,6 @@ import time
 import functions
 import os
 import matplotlib.pyplot as plt
-import moveCount
 
 def readFile(manifestName):
     containers = []
@@ -42,14 +41,15 @@ def runtimeTest(manifestName):
 
     if bfs_goal is None or bfs_goal.parent is None:
         results["BFS"] = (bfs_runtime, None, None)
-        print(f"BFS runtime: {bfs_runtime:.4f} seconds")
+        print(f"BFS Runtime: 0 seconds")
+        print(f"BFS Solution time: 0 minutes")
     else:
         bfs_solution_time = functions.totalTime(bfs_goal)
-        bfs_moves = moveCount.moveCount(bfs_goal)
 
         print(f"BFS runtime: {bfs_runtime:.4f} seconds")
+        print(f"BFS Solution time: {bfs_solution_time} minutes")
 
-        results["BFS"] = (bfs_runtime, bfs_solution_time, bfs_moves)
+        results["BFS"] = (bfs_runtime, bfs_solution_time)
 
     # ------------------ A* ------------------
     start_time = time.time()
@@ -58,14 +58,15 @@ def runtimeTest(manifestName):
 
     if astar_goal is None or astar_goal.parent is None:
         results["AStar"] = (astar_runtime, None, None)
-        print(f"A* runtime: {astar_runtime:.4f} seconds")
+        print(f"A* Runtime: {astar_runtime:.4f} seconds")
+        print(f"A* Solution time: 0 minutes")
     else:
         astar_solution_time = functions.totalTime(astar_goal)
-        astar_moves = moveCount.moveCount(astar_goal)
 
-        print(f"A* runtime: {astar_runtime:.4f} seconds")
+        print(f"A* Runtime: {astar_runtime:.4f} seconds")
+        print(f"A* Solution time: {astar_solution_time} minutes")
 
-        results["AStar"] = (astar_runtime, astar_solution_time, astar_moves)
+        results["AStar"] = (astar_runtime, astar_solution_time)
 
     return results
 
@@ -97,6 +98,9 @@ astar_sol = [all_results[t]["AStar"][1] for t in tests]
 # ----------------- Runtime Plot ---------------------
 import numpy as np
 
+bfs_sol = [v if v is not None else 0 for v in bfs_sol]
+astar_sol = [v if v is not None else 0 for v in astar_sol]
+
 x = np.arange(len(test_files))        
 width = 0.35                         
 
@@ -118,6 +122,32 @@ for i, v in enumerate(bfs_runtimes):
 
 for i, v in enumerate(astar_runtimes):
     plt.text(i + width/2, v, f"{v:.4f}", fontsize=7, ha='center', va='bottom')
+
+plt.tight_layout()
+plt.show()
+
+
+# ----------------- Solution Time Plot ---------------------
+
+plt.figure(figsize=(12, 6))
+
+plt.bar(x - width/2, bfs_sol, width, label="BFS")
+plt.bar(x + width/2, astar_sol, width, label="A*")
+
+plt.xlabel("Test Case")
+plt.ylabel("Solution Time (minutes)")
+plt.title("Solution Time Comparison: BFS vs A*")
+plt.xticks(x, [str(i+1) for i in range(len(test_files))])
+plt.legend()
+
+# optional value labels
+for i, v in enumerate(bfs_sol):
+    if v is not None:
+        plt.text(i - width/2, v, f"{v:.1f}", fontsize=7, ha='center', va='bottom')
+
+for i, v in enumerate(astar_sol):
+    if v is not None:
+        plt.text(i + width/2, v, f"{v:.1f}", fontsize=7, ha='center', va='bottom')
 
 plt.tight_layout()
 plt.show()
