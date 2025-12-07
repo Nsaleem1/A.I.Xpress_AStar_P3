@@ -46,7 +46,7 @@ def shipGrid(containers):
 def left(grid):
     totalWeight = 0
     for i in range(1,9):
-        for j in range(1, 13 // 2 + 1):
+        for j in range(1, 7):
             if (grid[i][j][1] != "NAN"):
                 totalWeight += grid[i][j][0]
     return totalWeight
@@ -54,7 +54,7 @@ def left(grid):
 def right(grid):
     totalWeight = 0
     for i in range(1,9):
-        for j in range(13 // 2 + 1, 13):
+        for j in range(7, 13):
             if grid[i][j][1] != "NAN":
                 totalWeight += grid[i][j][0]
     return totalWeight
@@ -134,7 +134,7 @@ def edgeCase(initialState, containers):
     #one container on right
     if (left(initialState.grid) == 0):
         for r in range(1,9):
-            for c in range(13 // 2 + 1, 13):
+            for c in range(7, 13):
                 if initialState.grid[r][c][0] != 0:
                     count += 1
         if count == 1: 
@@ -145,7 +145,7 @@ def edgeCase(initialState, containers):
     # one container on left
     if (right(initialState.grid) == 0):
         for r in range(1,9):
-            for c in range(1,13 // 2 + 1):
+            for c in range(1,7):
                 if initialState.grid[r][c][0] != 0:
                     count += 1
         if count == 1: 
@@ -321,23 +321,23 @@ def computeHeuristic3(neighbor):
 
     #choosing what side to move
     if left(grid) > right(grid):
-        deficit = abs(left(grid) - balanceMass)
+        deficit = balanceMass - right(grid)
         leftSide = True
         freeCol = 7
     else:
-        deficit = abs(right(grid) - balanceMass)
+        deficit = balanceMass - left(grid)
         freeCol = 6
     
     sortedSide = []
     
     if leftSide:
         for r in range(1,9):
-            for c in range(1, 13 // 2 + 1):
+            for c in range(1, 7):
                 if grid[r][c][1] != "NAN" and grid[r][c][1] != "UNUSED":
                     sortedSide.append((c,grid[r][c][0]))
     else:
          for r in range(1,9):
-            for c in range(13 // 2 + 1, 13):
+            for c in range(7, 13):
                 if grid[r][c][1] != "NAN" and grid[r][c][1] != "UNUSED":
                     sortedSide.append((c,grid[r][c][0]))       
     
@@ -361,6 +361,7 @@ def computeHeuristic3(neighbor):
                 freeCol -= 1
         else:
             hn = hn + abs(freeCol - move)
+    
     return hn
 
 
