@@ -76,8 +76,11 @@ class Controller:
 
         edge = (leftCnt == 1 and rightCnt == 1)
    
-    
-        # solving using the best function
+        #more than 16 containers 
+        if (count > 16):
+            self.ui.append_info("More than 16 containers, be aware of time...")
+        
+        #solving
         if not functions.edgeCase(self.initialState, containers) and weightCount != 1 and edge == False:
             self.foundGoal = functions.AStar3(self.initialState)
         else:
