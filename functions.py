@@ -133,31 +133,33 @@ def edgeCase(initialState, containers):
 
     #one container on right
     if (left(initialState.grid) == 0):
-        for container in containers[48:97]:
-            if (container.weight != 0):
-                count += 1
-        if count == 1:
+        for r in range(1,9):
+            for c in range(13 // 2 + 1, 13):
+                if initialState.grid[r][c][0] != 0:
+                    count += 1
+        if count == 1: 
             return True
         
     count = 0
 
-     #one container on left
+    # one container on left
     if (right(initialState.grid) == 0):
-        for container in containers[0:48]:
-            if (container.weight != 0):
-                count += 1
-        if count == 1:
+        for r in range(1,9):
+            for c in range(1,13 // 2 + 1):
+                if initialState.grid[r][c][0] != 0:
+                    count += 1
+        if count == 1: 
             return True
 
     #two containers on opp sides
-    for container in containers[0:48]:
-        if (container.weight != 0):
-            leftCnt += 1
-    for container in containers[48:97]:
-        if (container.weight != 0):
-            rightCnt += 1 
-    if (leftCnt == rightCnt and leftCnt == 1):
-        return True     
+    for r in range(1,9):
+        for c in range(1,13):
+            if (initialState.grid[r][c][0] != 0 and c < 7):
+                leftCnt += 1
+            if(initialState.grid[r][c][0] != 0 and c >= 7):
+                rightCnt += 1 
+    if (leftCnt == rightCnt == 1):
+        return True  
 
     return False   
 
