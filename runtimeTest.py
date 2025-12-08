@@ -3,6 +3,22 @@ import functions
 import os
 import matplotlib.pyplot as plt
 
+os.makedirs("outbound", exist_ok=True)
+
+def save_outbound_manifest(goalState, case_number):
+    os.makedirs("outbound", exist_ok=True)
+    filename = f"AutoTest{case_number:02d}OUTBOUND.txt"
+    filepath = os.path.join("outbound", filename)
+    grid = goalState.grid
+
+    with open(filepath, "w") as f:
+        for r in range(1, 9):
+            for c in range(1, 13):
+                weight, content = grid[r][c]
+                row = f"{r:02d}"
+                col = f"{c:02d}"
+                f.write(f"[{row},{col}], {{{weight:05d}}}, {content}\n")
+
 def readFile(manifestName):
     containers = []
     # read file
@@ -34,7 +50,7 @@ def runtimeTest(manifestName):
     initialState = readFile(manifestName)
     results = {}
 
-    # --------------- BFS -----------------
+   # --------------- BFS -----------------
     start_time = time.time()
     bfs_goal = functions.BFS(initialState)
     bfs_runtime = time.time() - start_time
@@ -50,7 +66,7 @@ def runtimeTest(manifestName):
         print(f"BFS Solution time: {bfs_solution_time} minutes")
 
         results["BFS"] = (bfs_runtime, bfs_solution_time)
-
+      
     # ------------------ A* ------------------
     start_time = time.time()
     astar_goal = functions.AStar(initialState)
@@ -60,16 +76,22 @@ def runtimeTest(manifestName):
         results["AStar"] = (astar_runtime, None, None)
         print(f"A* Runtime: {astar_runtime:.4f} seconds")
         print(f"A* Solution time: 0 minutes")
+        case_number = int(file.split("_")[1].split(".")[0])  
+
+        save_outbound_manifest(astar_goal, case_number)
     else:
         astar_solution_time = functions.totalTime(astar_goal)
 
         print(f"A* Runtime: {astar_runtime:.4f} seconds")
         print(f"A* Solution time: {astar_solution_time} minutes")
+        case_number = int(file.split("_")[1].split(".")[0])  
 
+        save_outbound_manifest(astar_goal, case_number)
         results["AStar"] = (astar_runtime, astar_solution_time)
 
     return results
 
+#Original test cases
 test_files = [
     "ShipCase1.txt",
     "ShipCase2.txt",
@@ -79,11 +101,21 @@ test_files = [
     "ShipCase6.txt"
 ]
 
+"""# 20 manifest tests
+test_directory = "Additional Tests"
+test_files = []
+for f in os.listdir(test_directory):
+    if f.endswith(".txt"):
+        test_files.append(os.path.join(test_directory, f))
+
+test_files.sort()"""
+
 all_results = {}
 
 
 for file in test_files:
     try:
+        print(f"Test file: {file}")
         all_results[file] = runtimeTest(file)
     except FileNotFoundError:
         print(f"Skipping {file}: file not found.")
@@ -140,7 +172,6 @@ plt.title("Solution Time Comparison: BFS vs A*")
 plt.xticks(x, [str(i+1) for i in range(len(test_files))])
 plt.legend()
 
-# optional value labels
 for i, v in enumerate(bfs_sol):
     if v is not None:
         plt.text(i - width/2, v, f"{v:.1f}", fontsize=7, ha='center', va='bottom')
@@ -151,5 +182,3 @@ for i, v in enumerate(astar_sol):
 
 plt.tight_layout()
 plt.show()
-
-
